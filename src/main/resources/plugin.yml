@@ -1,0 +1,11 @@
+name: Unseeable
+version: 1.0
+main: nl.lucemans.unseeable.Unseeable
+author: Lucemans
+commands:
+   unseeable:
+     aliases: [us,unsee,uns]
+     description: Unseeable main command
+   unseeableadmin:
+     aliases: [usa,unseeadmin,unsa]
+     description: Unseeable main command
