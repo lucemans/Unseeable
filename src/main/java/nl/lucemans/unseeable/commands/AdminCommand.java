@@ -21,6 +21,8 @@ public class AdminCommand implements CommandExecutor {
     private SpawnCommand spawnCommand = new SpawnCommand();
     private InfoCommand infoCommand = new InfoCommand();
     private StopCommand stopCommand = new StopCommand();
+    private RemoveCommand removeCommand = new RemoveCommand();
+    private ForceStartCommand forceStartCommand = new ForceStartCommand();
 
     // -/usa setup <name> <minPlayers> <maxPlayers>
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -89,6 +91,7 @@ public class AdminCommand implements CommandExecutor {
             Unseeable.instance.maps.add(m);
 
             p.sendMessage(LanguageManager.get("lang.mapcreate", new String[]{name}));
+            return true;
         }
         if (args[0].equalsIgnoreCase("spawn")) {
             spawnCommand.execute(p, args);
@@ -102,9 +105,19 @@ public class AdminCommand implements CommandExecutor {
             stopCommand.execute(p, args);
             return true;
         }
+        if (args[0].equalsIgnoreCase("start")) {
+            forceStartCommand.execute(p, args);
+            return true;
+        }
+        if (args[0].equalsIgnoreCase("remove")) {
+            removeCommand.execute(p, args);
+            return true;
+        }
         if (args[0].equalsIgnoreCase("help")) {
             sendHelp(p);
+            return true;
         }
+        sendHelp(p);
         return true;
     }
 
@@ -114,6 +127,7 @@ public class AdminCommand implements CommandExecutor {
         p.sendMessage(Unseeable.parse("&6/usa spawn <name> <add|clear> &r|| &7Modifies the maps spawnpoints."));
         p.sendMessage(Unseeable.parse("&6/usa info <map> &r|| &7Gives Map Information."));
         p.sendMessage(Unseeable.parse("&6/usa stop &r|| &7Stops the current Game."));
+        p.sendMessage(Unseeable.parse("&6/usa remove <map> &r|| &7Removes a map."));
         p.sendMessage(Unseeable.parse("&6/usa help &r|| &7Shows this help menu."));
     }
 }

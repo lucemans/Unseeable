@@ -32,7 +32,7 @@ public class SpawnCommand implements BaseCommand {
         if (mod.equalsIgnoreCase("add")) {
             m.spawnPoints.add(new SerializableLocation(p.getLocation()));
             String size = "" + m.spawnPoints.size();
-            p.sendMessage(LanguageManager.get("lang.spawnadd", new String[]{m.name, size }));
+            p.sendMessage(LanguageManager.get("lang.spawnadd", new String[]{m.name, size}));
         } else if (mod.equalsIgnoreCase("clear")) {
             m.spawnPoints.clone();
             p.sendMessage(LanguageManager.get("lang.spawnclear", new String[]{mapName}));

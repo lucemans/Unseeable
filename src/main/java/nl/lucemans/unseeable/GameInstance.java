@@ -1,12 +1,19 @@
 package nl.lucemans.unseeable;
 
+import nl.lucemans.NovaItems.NItem;
 import nl.lucemans.unseeable.system.Map;
 import nl.lucemans.unseeable.utils.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +34,9 @@ public class GameInstance {
     public HashMap<String, Location> lastLocation;
     public HashMap<String, HashMap<Integer, ItemStack>> lastItems;
     public HashMap<String, GameMode> lastGamemode;
+    public HashMap<String, Double> fullHearts;
+    public HashMap<String, Double> startHearts;
+    public HashMap<String, Integer> startHunger;
     public Enum<GameState> state;
     public int StartTime = 0;
 
@@ -36,6 +46,9 @@ public class GameInstance {
         this.lastLocation = new HashMap<String, Location>();
         this.lastItems = new HashMap<String, HashMap<Integer, ItemStack>>();
         this.lastGamemode = new HashMap<String, GameMode>();
+        this.startHearts = new HashMap<String, Double>();
+        this.startHunger = new HashMap<String, Integer>();
+        this.fullHearts = new HashMap<String, Double>();
         this.state = GameState.COLLECTING;
     }
 
@@ -63,30 +76,21 @@ public class GameInstance {
                     }
                 }
             } else {
-                state = GameState.INGAME;
-                massSend(LanguageManager.get("lang.gamestart", new String[]{}));
-                for (Player p : players) {
-                    lastLocation.put(p.getUniqueId().toString(), p.getLocation().clone());
-                    lastGamemode.put(p.getUniqueId().toString(), p.getGameMode());
-
-                    HashMap<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
-                    Integer slot = 0;
-                    for (ItemStack item : p.getInventory().getContents()) {
-                        items.put(slot, item);
-                        slot++;
-                    }
-                    lastItems.put(p.getUniqueId().toString(), items);
-
-                    p.setGameMode(GameMode.ADVENTURE);
-                    p.getInventory().clear();
-                    spawnPlayer(p);
-                }
+                start();
+            }
+        }
+        if (state == GameState.DISPLAY || state == GameState.INGAME) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.setSaturation(20f);
+                p.setFoodLevel(20);
             }
         }
     }
 
     public void spawnPlayer(Player p) {
         p.teleport(m.spawnPoints.get(new Random().nextInt(m.spawnPoints.size())).getLocation());
+        p.setHealthScale(m.totalHearts);
+        p.setHealth(m.totalHearts);
         p.sendMessage(LanguageManager.get("lang.spawn", new String[]{}));
     }
 
@@ -107,21 +111,78 @@ public class GameInstance {
         p.sendMessage(LanguageManager.get("lang.gamestillprogress", new String[]{}));
     }
 
+    public void leavePlayer(Player p) {
+        if (lastLocation.containsKey(p.getUniqueId().toString()))
+            p.teleport(lastLocation.get(p.getUniqueId().toString()));
+        if (lastGamemode.containsKey(p.getUniqueId().toString()))
+            p.setGameMode(lastGamemode.get(p.getUniqueId().toString()));
+        if (lastItems.containsKey(p.getUniqueId().toString())) {
+            p.getInventory().clear();
+            HashMap<Integer, ItemStack> items = lastItems.get(p.getUniqueId().toString());
+            for (Integer i : items.keySet()) {
+                p.getInventory().setItem(i, items.get(i));
+            }
+        }
+        if (startHunger.containsKey(p.getUniqueId().toString())) {
+            p.setFoodLevel(startHunger.get(p.getUniqueId().toString()));
+        }
+        if (startHearts.containsKey(p.getUniqueId().toString())) {
+            p.setHealth(startHearts.get(p.getUniqueId().toString()));
+        }
+        if (fullHearts.containsKey(p.getUniqueId().toString())) {
+            p.setHealthScale(fullHearts.get(p.getUniqueId().toString()));
+        }
+
+        if (state == GameState.STARTING && players.size()-1 < m.minPlayers) {
+            massSend("Game Start was canncelled due to not enough players.");
+            state = GameState.COLLECTING;
+            StartTime = 0;
+        }
+        if (state == GameState.INGAME && players.size()-1 < m.minPlayers) {
+            massSend("Game was canncelled due to not enough players.");
+            state = GameState.COLLECTING;
+            StartTime = 0;
+        }
+        if (players.size() == 0)
+            state = GameState.STOPPED;
+    }
+
+    public void start() {
+        StartTime = 0;
+        state = GameState.INGAME;
+        massSend(LanguageManager.get("lang.gamestart", new String[]{}));
+        for (Player p : players) {
+            lastLocation.put(p.getUniqueId().toString(), p.getLocation().clone());
+            lastGamemode.put(p.getUniqueId().toString(), p.getGameMode());
+            startHearts.put(p.getUniqueId().toString(), p.getHealth());
+            startHunger.put(p.getUniqueId().toString(), p.getFoodLevel());
+            fullHearts.put(p.getUniqueId().toString(), p.getHealthScale());
+
+
+            HashMap<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
+            Integer slot = 0;
+            for (ItemStack item : p.getInventory().getContents()) {
+                items.put(slot, item);
+                slot++;
+            }
+            lastItems.put(p.getUniqueId().toString(), items);
+
+            p.setGameMode(GameMode.ADVENTURE);
+            p.getInventory().clear();
+            p.getInventory().setHeldItemSlot(0);
+            p.getInventory().setItem(0, NItem.create(Material.DIAMOND_SWORD).setName("&7Sword of &rVisibility").setEnchantment(Enchantment.DURABILITY, 2).make());
+            spawnPlayer(p);
+        }
+    }
+
     public void stop() {
         state = GameState.STOPPED;
         massSend(LanguageManager.get("lang.stop", new String[]{}));
         for (Player p : players) {
-            if (lastLocation.containsKey(p.getUniqueId().toString()))
-                p.teleport(lastLocation.get(p.getUniqueId().toString()));
-            if (lastGamemode.containsKey(p.getUniqueId().toString()))
-                p.setGameMode(lastGamemode.get(p.getUniqueId().toString()));
-            if (lastItems.containsKey(p.getUniqueId().toString())) {
-                HashMap<Integer, ItemStack> items = lastItems.get(p.getUniqueId().toString());
-                for (Integer i : items.keySet()) {
-                    p.getInventory().setItem(i, items.get(i));
-                }
-            }
+            Bukkit.getLogger().info("Leaving player " + p.getName());
+            leavePlayer(p);
         }
+        players.clear();
     }
 
     public void massSend(String msg) {
@@ -132,4 +193,23 @@ public class GameInstance {
         }
     }
 
+    /* Events */
+    public void moveInput(PlayerMoveEvent event) {
+        if (state == GameState.INGAME)
+        {
+            event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
+            if (event.getPlayer().getItemInHand().getType().equals(Material.DIAMOND_SWORD)) {
+                event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
+                return;
+            }
+            if (event.getFrom().getX() != event.getTo().getX() || event.getFrom().getY() != event.getTo().getY() || event.getTo().getZ() != event.getFrom().getZ())
+            {
+                event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 40, 10, false, false));
+            }
+        }
+    }
+
+    public void interactInput(PlayerInteractEvent event) {
+        event.setCancelled(true);
+    }
 }

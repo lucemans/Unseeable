@@ -16,6 +16,7 @@ public class UnseeableCommand implements CommandExecutor {
     private ListCommand listCommand = new ListCommand();
     private JoinCommand joinCommand = new JoinCommand();
     private StatusCommand statusCommand = new StatusCommand();
+    private LeaveCommand leaveCommand = new LeaveCommand();
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0) {
@@ -41,6 +42,11 @@ public class UnseeableCommand implements CommandExecutor {
             return true;
         }
 
+        if (args[0].equalsIgnoreCase("leave")) {
+            leaveCommand.execute(p, args);
+            return true;
+        }
+
         if (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("status")) {
             statusCommand.execute(p, args);
             return true;
@@ -60,6 +66,7 @@ public class UnseeableCommand implements CommandExecutor {
         p.sendMessage(Unseeable.parse("&6/us list &r|| &7Lists all available maps."));
         p.sendMessage(Unseeable.parse("&6/us join &r|| &7Joins a game or a map selector."));
         p.sendMessage(Unseeable.parse("&6/us join <map> &r|| &7Joins a specific map."));
+        p.sendMessage(Unseeable.parse("&6/us leave &r|| &7Leave the game."));
         p.sendMessage(Unseeable.parse("&6/us info &r|| &7Gives Game Info."));
         p.sendMessage(Unseeable.parse("&6/us help &r|| &7Shows the help menu"));
     }

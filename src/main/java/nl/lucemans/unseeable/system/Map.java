@@ -18,6 +18,8 @@ public class Map implements Serializable {
     public ArrayList<SerializableLocation> spawnPoints;
     public int maxPlayers = 0;
     public int minPlayers = 0;
+    public int totalHearts = 20;
+    public int speedBoost = 2;
 
     public Map(String name, Location negMark, Location posMark, Integer minPlayers, Integer maxPlayers) {
         spawnPoints = new ArrayList<SerializableLocation>();

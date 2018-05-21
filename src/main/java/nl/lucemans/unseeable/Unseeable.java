@@ -3,15 +3,19 @@ package nl.lucemans.unseeable;
 import nl.lucemans.unseeable.commands.AdminCommand;
 import nl.lucemans.unseeable.commands.UnseeableCommand;
 import nl.lucemans.unseeable.system.Map;
+import nl.lucemans.unseeable.utils.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -142,6 +146,31 @@ public class Unseeable extends JavaPlugin implements Listener {
                     }
                     //event.getPlayer().sendMessage(parse("&cThis sign is setup incorrectly."));
                 }
+            }
+        }
+
+        if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED)
+            if (currentGame.players.contains(event.getPlayer()))
+                currentGame.interactInput(event);
+    }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent event) {
+        if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED)
+            if (currentGame.players.contains(event.getPlayer()))
+                currentGame.moveInput(event);
+    }
+
+    @EventHandler
+    public void onCommand(PlayerCommandPreprocessEvent event) {
+        if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED) {
+            if (currentGame.players.contains(event.getPlayer())) {
+                if (event.getMessage().startsWith("/usa") || event.getMessage().startsWith("/us")) {
+                    return;
+                }
+                event.getPlayer().sendMessage(LanguageManager.get("lang.nocmdingame", new String[]{event.getMessage()}));
+                event.setCancelled(true);
+                return;
             }
         }
     }

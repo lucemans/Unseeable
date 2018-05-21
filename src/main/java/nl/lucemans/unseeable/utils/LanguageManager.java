@@ -17,6 +17,7 @@ public class LanguageManager {
         Integer i = 1;
         for (String str : args) {
             res = res.replace("$" + i, str);
+            i++;
         }
         if (!path.equalsIgnoreCase("lang.prefix"))
             res = res.replace("%prefix", getLang("lang.prefix"));
