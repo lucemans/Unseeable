@@ -5,6 +5,7 @@ import nl.lucemans.ninventory.NInventory;
 import nl.lucemans.unseeable.GameInstance;
 import nl.lucemans.unseeable.Unseeable;
 import nl.lucemans.unseeable.system.Map;
+import nl.lucemans.unseeable.utils.LanguageManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -21,28 +22,28 @@ public class JoinCommand implements BaseCommand {
         if (Unseeable.instance.currentGame == null || Unseeable.instance.currentGame.state == GameInstance.GameState.STOPPED) {
             // if no game is active
             if (!Unseeable.instance.hasWorkingMap()) {
-                p.sendMessage("No maps are ready to be played.");
+                p.sendMessage(LanguageManager.get("lang.nomapsready", new String[]{}));
                 return;
             }
 
             if (args.length >= 2) {
                 Map m = Unseeable.instance.findMap(args[1]);
                 if (m == null) {
-                    p.sendMessage("We could not find that map.");
+                    p.sendMessage(LanguageManager.get("lang.mapnotfound", new String[]{args[1]}));
                     return;
                 }
 
                 if (!m.isSetup()) {
-                    p.sendMessage("Map not setup properly.");
+                    p.sendMessage(LanguageManager.get("lang.mapnotsetup", new String[]{m.name}));
                     return;
                 }
 
                 Unseeable.instance.currentGame = new GameInstance(m);
             } else {
-                NInventory linv = new NInventory("Choose a map", (int) Math.ceil(((double) Unseeable.instance.maps.size()) / 9.0) * 9, Unseeable.instance);
+                NInventory linv = new NInventory(LanguageManager.get("lang.chooseamap", new String[]{"" + Unseeable.instance.maps.size()}), (int) Math.ceil(((double) Unseeable.instance.maps.size()) / 9.0) * 9, Unseeable.instance);
                 Integer i = 0;
                 for (final Map m : Unseeable.instance.maps) {
-                    linv.setItem(NItem.create(Material.WOOL).setName(m.name).setAmount(m.maxPlayers).make(), i);
+                    linv.setItem(NItem.create(Material.valueOf(LanguageManager.get("lang.mapicon", new String[]{}))).setName(LanguageManager.get("lang.maptitle", new String[]{m.name})).setAmount(m.maxPlayers).make(), i);
                     linv.setLClick(i, new Runnable() {
                         public void run() {
                             p.performCommand("us join " + m.name);

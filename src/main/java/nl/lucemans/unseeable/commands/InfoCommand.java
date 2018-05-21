@@ -2,6 +2,7 @@ package nl.lucemans.unseeable.commands;
 
 import nl.lucemans.unseeable.Unseeable;
 import nl.lucemans.unseeable.system.Map;
+import nl.lucemans.unseeable.utils.LanguageManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -14,14 +15,14 @@ public class InfoCommand implements BaseCommand {
     // /usa info <mapName>
     public void execute(Player p, String[] args) {
         if (args.length < 2) {
-            p.sendMessage("Please use /usa info <mapName>");
+            p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa info <mapName>"}));
             return;
         }
 
         String mapName = args[1];
         Map m = Unseeable.instance.findMap(mapName);
         if (m == null) {
-            p.sendMessage("Map could not be found. Do /us list");
+            p.sendMessage(LanguageManager.get("lang.mapnotfound", new String[]{mapName}));
             return;
         }
 

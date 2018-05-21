@@ -1,6 +1,7 @@
 package nl.lucemans.unseeable.commands;
 
 import nl.lucemans.unseeable.Unseeable;
+import nl.lucemans.unseeable.utils.LanguageManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,7 +26,7 @@ public class UnseeableCommand implements CommandExecutor {
             return true;
         }
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Unseeable.parse("&rYou need to be a &6&lplayer&r to do this."));
+            sender.sendMessage(LanguageManager.get("lang.nonconsole", new String[]{}));
             return true;
         }
         Player p = (Player) sender;
@@ -50,7 +51,7 @@ public class UnseeableCommand implements CommandExecutor {
             return true;
         }
 
-        p.sendMessage(Unseeable.parse("Unknown Command, Please do &5/us help"));
+        p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"&5/us help"}));
         return true;
     }
 

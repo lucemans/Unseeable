@@ -5,7 +5,7 @@ import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import nl.lucemans.unseeable.Unseeable;
 import nl.lucemans.unseeable.system.Map;
-import nl.lucemans.unseeable.utils.SerializableLocation;
+import nl.lucemans.unseeable.utils.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,7 +26,7 @@ public class AdminCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage("You need to be a player to do this.");
+            sender.sendMessage(LanguageManager.get("lang.nonconsole", new String[]{}));
             return true;
         }
 
@@ -38,7 +38,7 @@ public class AdminCommand implements CommandExecutor {
         }
         if (args[0].equalsIgnoreCase("setup")) {
             if (args.length < 4) {
-                p.sendMessage("Please use /usa setup <name> <minPlayers> <maxPlayers>");
+                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa setup <name> <minPlayers> <maxPlayers>"}));
                 return true;
             }
 
@@ -47,28 +47,28 @@ public class AdminCommand implements CommandExecutor {
             Integer maxPlayers = -1;
 
             if (Unseeable.instance.findMap(name) != null) {
-                p.sendMessage("Map name already in use.");
+                p.sendMessage(LanguageManager.get("lang.mapinuse", new String[]{name}));
                 return true;
             }
 
             try {
                 minPlayers = Integer.parseInt(args[2]);
             } catch (Exception e) {
-                p.sendMessage("MinPlayers needs to be a valid number.");
+                p.sendMessage(LanguageManager.get("lang.validnumber", new String[] {"MinPlayers"}));
                 return true;
             }
             if (minPlayers < 2) {
-                p.sendMessage(Unseeable.parse("Minimum Players cannot be less than 2."));
+                p.sendMessage(LanguageManager.get("lang.lesstwo", new String[] {"MinPlayers"}));
                 return true;
             }
             try {
                 maxPlayers = Integer.parseInt(args[3]);
             } catch (Exception e) {
-                p.sendMessage("MaxPlayers needs to be a valid number.");
+                p.sendMessage(LanguageManager.get("lang.validnumber", new String[] {"MaxPlayers"}));
                 return true;
             }
             if (maxPlayers < 2) {
-                p.sendMessage(Unseeable.parse("Maximum Players cannot be less than 2."));
+                p.sendMessage(LanguageManager.get("lang.lesstwo", new String[] {"MaxPlayers"}));
                 return true;
             }
 
@@ -76,19 +76,19 @@ public class AdminCommand implements CommandExecutor {
             WorldEditPlugin plug = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
             Selection sel = plug.getSelection(p);
             if (sel == null) {
-                p.sendMessage("Please select something using WorldEdit.");
+                p.sendMessage(LanguageManager.get("lang.selectwe", new String[]{}));
                 return true;
             }
 
             if (!(sel instanceof CuboidSelection)) {
-                p.sendMessage("Worth a try but selections need to be cuboid.");
+                p.sendMessage(LanguageManager.get("lang.cuboidwe", new String[]{}));
                 return true;
             }
 
             Map m = new Map(name, sel.getMinimumPoint(), sel.getMaximumPoint(), minPlayers, maxPlayers);
             Unseeable.instance.maps.add(m);
 
-            p.sendMessage("Successfully created map "+name+"!");
+            p.sendMessage(LanguageManager.get("lang.mapcreate", new String[]{name}));
         }
         if (args[0].equalsIgnoreCase("spawn")) {
             spawnCommand.execute(p, args);

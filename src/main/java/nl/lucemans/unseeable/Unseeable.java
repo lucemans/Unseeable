@@ -36,6 +36,8 @@ public class Unseeable extends JavaPlugin implements Listener {
         super.onEnable();
         instance = this;
 
+        saveDefaultConfig();
+
         // Load maps
         if (!getDataFolder().exists())
             getDataFolder().mkdir();
@@ -69,6 +71,10 @@ public class Unseeable extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+
+        if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED)
+            currentGame.stop();
+
         try{
             if(mapFile.exists())
                 mapFile.delete();
@@ -150,7 +156,7 @@ public class Unseeable extends JavaPlugin implements Listener {
                 if (m != null) {
                     if (m.isSetup()) {
                         event.setLine(1, parse("&a&l" + m.name));
-                        event.setLine(2, parse("("+m.minPlayers+"/"+m.maxPlayers+")"));
+                        event.setLine(2, parse(m.maxPlayers+" Players"));
                         event.getPlayer().sendMessage(parse("&aSuccessfully created a join sign!"));
                         return;
                     }

@@ -2,6 +2,7 @@ package nl.lucemans.unseeable.commands;
 
 import nl.lucemans.unseeable.GameInstance;
 import nl.lucemans.unseeable.Unseeable;
+import nl.lucemans.unseeable.utils.LanguageManager;
 import org.bukkit.entity.Player;
 
 /*
@@ -14,7 +15,7 @@ public class StatusCommand implements BaseCommand {
         p.sendMessage("------GameStatus------");
 
         if (Unseeable.instance.currentGame == null) {
-            p.sendMessage("No game has started.");
+            p.sendMessage(LanguageManager.get("lang.nogamestarted", new String[]{}));
             return;
         }
 
