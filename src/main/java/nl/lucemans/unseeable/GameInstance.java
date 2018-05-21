@@ -37,6 +37,7 @@ public class GameInstance {
     public HashMap<String, Double> fullHearts;
     public HashMap<String, Double> startHearts;
     public HashMap<String, Integer> startHunger;
+    public HashMap<String, Float> lastSpeed;
     public Enum<GameState> state;
     public int StartTime = 0;
 
@@ -49,6 +50,7 @@ public class GameInstance {
         this.startHearts = new HashMap<String, Double>();
         this.startHunger = new HashMap<String, Integer>();
         this.fullHearts = new HashMap<String, Double>();
+        this.lastSpeed = new HashMap<String, Float>();
         this.state = GameState.COLLECTING;
     }
 
@@ -91,6 +93,8 @@ public class GameInstance {
         p.teleport(m.spawnPoints.get(new Random().nextInt(m.spawnPoints.size())).getLocation());
         p.setHealthScale(m.totalHearts);
         p.setHealth(m.totalHearts);
+        p.setWalkSpeed(m.speedBoost);
+        p.setSprinting(true);
         p.sendMessage(LanguageManager.get("lang.spawn", new String[]{}));
     }
 
@@ -132,6 +136,9 @@ public class GameInstance {
         if (fullHearts.containsKey(p.getUniqueId().toString())) {
             p.setHealthScale(fullHearts.get(p.getUniqueId().toString()));
         }
+        if (lastSpeed.containsKey(p.getUniqueId().toString())) {
+            p.setWalkSpeed(lastSpeed.get(p.getUniqueId().toString()));
+        }
 
         if (state == GameState.STARTING && players.size()-1 < m.minPlayers) {
             massSend("Game Start was canncelled due to not enough players.");
@@ -157,6 +164,7 @@ public class GameInstance {
             startHearts.put(p.getUniqueId().toString(), p.getHealth());
             startHunger.put(p.getUniqueId().toString(), p.getFoodLevel());
             fullHearts.put(p.getUniqueId().toString(), p.getHealthScale());
+            lastSpeed.put(p.getUniqueId().toString(), p.getWalkSpeed());
 
 
             HashMap<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
