@@ -52,12 +52,12 @@
       <file leaf-file-name="GameInstance.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/GameInstance.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="316">
-              <caret line="135" column="39" lean-forward="true" selection-start-line="135" selection-start-column="39" selection-end-line="135" selection-end-column="39" />
+            <state relative-caret-position="-418">
+              <caret line="320" column="34" lean-forward="false" selection-start-line="320" selection-start-column="34" selection-end-line="320" selection-end-column="34" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#15992#15993#0" expanded="true" />
-                <element signature="e#16032#16033#0" expanded="true" />
+                <element signature="e#15526#15527#0" expanded="true" />
+                <element signature="e#15566#15567#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -156,6 +156,9 @@
       <find>kills.put</find>
       <find>startin</find>
       <find>changePlayerName</find>
+      <find>start</find>
+      <find>start()</find>
+      <find>last</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -472,12 +475,12 @@
       <workItem from="1525900130711" duration="150000" />
       <workItem from="1525937880449" duration="3918000" />
       <workItem from="1526846613195" duration="44802000" />
-      <workItem from="1526933057474" duration="4665000" />
+      <workItem from="1526933057474" duration="5307000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53535000" />
+    <option name="totallyTimeSpent" value="54177000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="18" width="1840" height="1016" extended-state="6" />
@@ -540,8 +543,8 @@
           <caret line="14" column="37" lean-forward="true" selection-start-line="14" selection-start-column="37" selection-end-line="14" selection-end-column="37" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#15992#15993#0" expanded="true" />
-            <element signature="e#16032#16033#0" expanded="true" />
+            <element signature="e#15526#15527#0" expanded="true" />
+            <element signature="e#15566#15567#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -869,12 +872,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/GameInstance.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="316">
-          <caret line="135" column="39" lean-forward="true" selection-start-line="135" selection-start-column="39" selection-end-line="135" selection-end-column="39" />
+        <state relative-caret-position="-418">
+          <caret line="320" column="34" lean-forward="false" selection-start-line="320" selection-start-column="34" selection-end-line="320" selection-end-column="34" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#15992#15993#0" expanded="true" />
-            <element signature="e#16032#16033#0" expanded="true" />
+            <element signature="e#15526#15527#0" expanded="true" />
+            <element signature="e#15566#15567#0" expanded="true" />
           </folding>
         </state>
       </provider>

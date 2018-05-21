@@ -40,6 +40,7 @@ public class GameInstance {
     public HashMap<String, Float> lastXP;
     public HashMap<String, Integer> lastLVL;
     public HashMap<String, String> lastDisplayName;
+    public HashMap<String, Scoreboard> lastScoreboard;
     public HashMap<String, Integer> kills;
     public HashMap<String, LScoreboard> scoreboards;
     public Enum<GameState> state;
@@ -60,6 +61,7 @@ public class GameInstance {
         this.lastDisplayName = new HashMap<String, String>();
         this.kills = new HashMap<String, Integer>();
         this.scoreboards = new HashMap<String, LScoreboard>();
+        this.lastScoreboard = new HashMap<String, Scoreboard>();
         this.state = GameState.COLLECTING;
     }
 
@@ -68,7 +70,7 @@ public class GameInstance {
             if (players.size() >= m.minPlayers) {
                 state = GameState.STARTING;
                 massSend(LanguageManager.get("lang.startin", new String[]{"30"}));
-                StartTime = 30*20;
+                StartTime = 30 * 20;
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (!players.contains(p))
                         p.sendMessage(LanguageManager.get("lang.gamestarting", new String[]{m.name, players.size() + "", m.maxPlayers - players.size() + ""}));
@@ -83,11 +85,10 @@ public class GameInstance {
                     if (seconds == 20 || seconds == 10 || seconds <= 5) {
                         if (seconds > 5)
                             massSend(LanguageManager.get("lang.startin", new String[]{"" + seconds}));
+                        else if (seconds == 0)
+                            massSend(LanguageManager.get("lang.startinfast", new String[]{"NOW"}));
                         else
-                            if (seconds == 0)
-                                massSend(LanguageManager.get("lang.startinfast", new String[]{"NOW"}));
-                            else
-                                massSend(LanguageManager.get("lang.startinfast", new String[]{seconds + ""}));
+                            massSend(LanguageManager.get("lang.startinfast", new String[]{seconds + ""}));
                     }
                 }
             } else {
@@ -106,7 +107,7 @@ public class GameInstance {
                             if (!p.getUniqueId().toString().equalsIgnoreCase(f.getUniqueId().toString()))
                                 f.teleport(m.loserSpawn.getLocation());
                         }
-                        StartTime = 10*20; // 10 seconds
+                        StartTime = 10 * 20; // 10 seconds
                         break;
                     }
                 }
@@ -116,16 +117,9 @@ public class GameInstance {
                 }
             }
             java.util.Map<String, Integer> r = MapUtil.sortByComparator((HashMap<String, Integer>) kills.clone(), false);
-            /*for (Player p : players)
-                p.sendMessage("users");
-            for (String str : r.keySet()) {
-                for (Player p : players)
-                    p.sendMessage(str + " " + r.get(str));
-            }*/
 
             for (Player p : players) {
-                if (scoreboards.containsKey(p.getUniqueId().toString()))
-                {
+                if (scoreboards.containsKey(p.getUniqueId().toString())) {
                     LScoreboard lscore = scoreboards.get(p.getUniqueId().toString());
                     lscore.name = Unseeable.parse("&7&m---" + Unseeable.NAME + "&7&m---");
                     lscore.content = new ArrayList<String>(Arrays.asList(Unseeable.parse("First to &6" + m.killsRequired + "&r wins!")));
@@ -150,14 +144,6 @@ public class GameInstance {
                     lscore.update();
                 }
             }
-            /*HashMap<String, Integer> reversed = new HashMap<String, Integer>();
-            String[] players = (String[]) r.keySet().toArray();
-            int i = 0;
-            for (String str2 : players) {
-                String str = players[players.length-1];
-                reversed.put()
-                i++;
-            }*/
         }
 
         if (state == GameState.DISPLAY) {
@@ -168,8 +154,7 @@ public class GameInstance {
                     if (seconds == 20 || seconds == 10 || seconds <= 5) {
                         if (seconds > 5)
                             massSend(LanguageManager.get("lang.endin", new String[]{"" + seconds}));
-                        else
-                        if (seconds == 0)
+                        else if (seconds == 0)
                             massSend(LanguageManager.get("lang.endin", new String[]{"NOW"}));
                         else
                             massSend(LanguageManager.get("lang.endin", new String[]{seconds + ""}));
@@ -206,8 +191,7 @@ public class GameInstance {
     }
 
     public boolean hasSword(Player p) {
-        for (ItemStack item : p.getInventory().getContents())
-        {
+        for (ItemStack item : p.getInventory().getContents()) {
             if (item.getType().equals(Material.DIAMOND_SWORD)) {
                 if (item.hasItemMeta())
                     if (item.getItemMeta().getDisplayName().equalsIgnoreCase(Unseeable.parse("&7Sword of &rVisibility")))
@@ -255,24 +239,25 @@ public class GameInstance {
             p.setHealthScale(fullHearts.get(p.getUniqueId().toString()));
         if (lastSpeed.containsKey(p.getUniqueId().toString()))
             p.setWalkSpeed(lastSpeed.get(p.getUniqueId().toString()));
-
         if (lastXP.containsKey(p.getUniqueId().toString()))
             p.setExp(lastXP.get(p.getUniqueId().toString()));
         if (lastLVL.containsKey(p.getUniqueId().toString()))
             p.setLevel(lastLVL.get(p.getUniqueId().toString()));
         if (lastDisplayName.containsKey(p.getUniqueId().toString()))
             p.setDisplayName(lastDisplayName.get(p.getUniqueId().toString()));
+        if (lastScoreboard.containsKey(p.getUniqueId().toString()))
+            p.setScoreboard(lastScoreboard.get(p.getUniqueId().toString()));
 
         p.setSprinting(false);
 
-        NametagChanger.changePlayerName(p, "0/"+m.killsRequired+" ", "", TeamAction.DESTROY);
+        NametagChanger.changePlayerName(p, "0/" + m.killsRequired + " ", "", TeamAction.DESTROY);
 
-        if (state == GameState.STARTING && players.size()-1 < m.minPlayers) {
+        if (state == GameState.STARTING && players.size() - 1 < m.minPlayers) {
             massSend("Game Start was canncelled due to not enough players.");
             state = GameState.COLLECTING;
             StartTime = 0;
         }
-        if (state == GameState.INGAME && players.size()-1 < m.minPlayers) {
+        if (state == GameState.INGAME && players.size() - 1 < m.minPlayers) {
             massSend("Game was canncelled due to not enough players.");
             state = GameState.COLLECTING;
             StartTime = 0;
@@ -291,10 +276,10 @@ public class GameInstance {
             startHunger.put(p.getUniqueId().toString(), p.getFoodLevel());
             fullHearts.put(p.getUniqueId().toString(), p.getHealthScale());
             lastSpeed.put(p.getUniqueId().toString(), p.getWalkSpeed());
-
             lastXP.put(p.getUniqueId().toString(), p.getExp());
             lastLVL.put(p.getUniqueId().toString(), p.getLevel());
             lastDisplayName.put(p.getUniqueId().toString(), p.getDisplayName());
+            lastScoreboard.put(p.getUniqueId().toString(), p.getScoreboard());
 
             kills.put(p.getUniqueId().toString(), 0);
 
@@ -311,7 +296,7 @@ public class GameInstance {
             scoreboards.put(p.getUniqueId().toString(), scoreboard);
             p.setScoreboard(scoreboard.scoreboard);
 
-            NametagChanger.changePlayerName(p, "0/"+m.killsRequired+" ", "", TeamAction.CREATE);
+            NametagChanger.changePlayerName(p, "0/" + m.killsRequired + " ", "", TeamAction.CREATE);
             p.setGameMode(GameMode.ADVENTURE);
             p.getInventory().clear();
             p.getInventory().setHeldItemSlot(0);
@@ -334,9 +319,7 @@ public class GameInstance {
 
     public void finish() {
         state = GameState.STOPPED;
-        //massSend(LanguageManager.get("lang.stop", new String[]{}));
         for (Player p : players) {
-            //Bukkit.getLogger().info("Leaving player " + p.getName());
             leavePlayer(p);
         }
         players.clear();
@@ -352,15 +335,13 @@ public class GameInstance {
 
     /* Events */
     public void moveInput(PlayerMoveEvent event) {
-        if (state == GameState.INGAME)
-        {
+        if (state == GameState.INGAME) {
             event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
             if (event.getPlayer().getItemInHand().getType().equals(Material.DIAMOND_SWORD)) {
                 event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
                 return;
             }
-            if (event.getFrom().getX() != event.getTo().getX() || event.getFrom().getY() != event.getTo().getY() || event.getTo().getZ() != event.getFrom().getZ())
-            {
+            if (event.getFrom().getX() != event.getTo().getX() || event.getFrom().getY() != event.getTo().getY() || event.getTo().getZ() != event.getFrom().getZ()) {
                 event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20, 10, false, false));
             }
         }
@@ -371,7 +352,7 @@ public class GameInstance {
     }
 
     public boolean isInField(Location loc) {
-        return     loc.getX() >= m.negMark.x
+        return loc.getX() >= m.negMark.x
                 && loc.getX() <= m.posMark.x
                 && loc.getY() >= m.negMark.y
                 && loc.getY() <= m.posMark.y
