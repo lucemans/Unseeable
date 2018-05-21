@@ -16,10 +16,14 @@ public class Map implements Serializable {
     public SerializableLocation negMark;
     public SerializableLocation posMark;
     public ArrayList<SerializableLocation> spawnPoints;
+    public ArrayList<SerializableLocation> powerups;
+    public SerializableLocation loserSpawn;
+    public SerializableLocation winnerSpawn;
     public int maxPlayers = 0;
     public int minPlayers = 0;
     public int totalHearts = 20;
     public int speedBoost = 2;
+    public int killsRequired = 15;
 
     public Map(String name, Location negMark, Location posMark, Integer minPlayers, Integer maxPlayers) {
         spawnPoints = new ArrayList<SerializableLocation>();
@@ -31,7 +35,7 @@ public class Map implements Serializable {
     }
 
     public boolean isSetup() {
-        return (name != null && negMark != null && posMark != null && spawnPoints != null && spawnPoints.size() > 0 && maxPlayers != 0 && minPlayers != 0);
+        return (loserSpawn != null && winnerSpawn != null && name != null && negMark != null && posMark != null && spawnPoints != null && spawnPoints.size() > 0 && maxPlayers != 0 && minPlayers != 0);
     }
 
 }

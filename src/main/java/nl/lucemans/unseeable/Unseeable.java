@@ -4,18 +4,23 @@ import nl.lucemans.unseeable.commands.AdminCommand;
 import nl.lucemans.unseeable.commands.UnseeableCommand;
 import nl.lucemans.unseeable.system.Map;
 import nl.lucemans.unseeable.utils.LanguageManager;
+import nl.lucemans.unseeable.utils.NametagChanger;
+import nl.lucemans.unseeable.utils.TeamAction;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -152,6 +157,51 @@ public class Unseeable extends JavaPlugin implements Listener {
         if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED)
             if (currentGame.players.contains(event.getPlayer()))
                 currentGame.interactInput(event);
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player) {
+            if (event.getEntity() instanceof Player) {
+                if (currentGame == null || currentGame.state == GameInstance.GameState.STOPPED)
+                    return;
+                if (currentGame.players.contains(event.getEntity())) {
+                    if (currentGame.players.contains(event.getDamager())) {
+                        // Ingame punches ingame
+                        if (currentGame.state == GameInstance.GameState.INGAME) {
+
+                            ItemStack item = ((Player) event.getDamager()).getInventory().getItem(((Player) event.getDamager()).getInventory().getHeldItemSlot());
+                            if (item == null || item.getType() == Material.AIR) {
+                                event.setCancelled(true);
+                                event.getDamager().sendMessage("You need to attack with your sword.");
+                                return;
+                            }
+
+                            // successfull hit ingame
+                            if (((Player) event.getEntity()).getHealth() - event.getFinalDamage() <= 0.0) {
+                                currentGame.spawnPlayer((Player) event.getEntity());
+                                event.getDamager().sendMessage("Kill");
+                                currentGame.kills.put(event.getDamager().getUniqueId().toString(), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + 1);
+
+                                NametagChanger.changePlayerName(((Player) event.getDamager()), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + "/"+currentGame.m.killsRequired+" ", "", TeamAction.CREATE);
+                            }
+                        }
+                        else
+                        {
+                            event.setCancelled(true);
+                            event.getDamager().sendMessage("Its not the time for that right now.");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        event.setCancelled(true);
+                        event.getDamager().sendMessage("Please dont damage in-game players"); //TODO: LANG
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     @EventHandler

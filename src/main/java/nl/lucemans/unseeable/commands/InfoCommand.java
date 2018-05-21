@@ -30,6 +30,10 @@ public class InfoCommand implements BaseCommand {
         p.sendMessage("Name: " + m.name);
         p.sendMessage("Min Players: " + m.minPlayers);
         p.sendMessage("Max Players: " + m.maxPlayers);
+        p.sendMessage("Speed: " + m.speedBoost);
+        p.sendMessage("Health: " + m.totalHearts);
+        p.sendMessage("LoserTP: " + (m.loserSpawn != null ? ("x: " + m.loserSpawn.x + " y: " + m.loserSpawn.y + " z: " + m.loserSpawn.z + " world: " + m.loserSpawn.world) : ChatColor.RED + "Not Set"));
+        p.sendMessage("WinnerTP: " + (m.winnerSpawn != null ? ("x: " + m.winnerSpawn.x + " y: " + m.winnerSpawn.y + " z: " + m.winnerSpawn.z + " world: " + m.winnerSpawn.world) : ChatColor.RED + "Not Set"));
         p.sendMessage("Spawnpoints: " + (m.spawnPoints.size() < 2 ? ChatColor.RED : ChatColor.GREEN) + m.spawnPoints.size());
         p.sendMessage("IsSetup: " + (m.isSetup() ? "Yes" : "No"));
     }

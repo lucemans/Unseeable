@@ -16,7 +16,7 @@ public class SpawnCommand implements BaseCommand {
     // /usa spawn <name> clear
     public void execute(Player p, String[] args) {
         if (args.length < 3) {
-            p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn <name> <add/clear>"}));
+            p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn <name> <add/clear/lose/win>"}));
             return;
         }
 
@@ -36,6 +36,12 @@ public class SpawnCommand implements BaseCommand {
         } else if (mod.equalsIgnoreCase("clear")) {
             m.spawnPoints.clone();
             p.sendMessage(LanguageManager.get("lang.spawnclear", new String[]{mapName}));
+        } else if (mod.equalsIgnoreCase("lose")) {
+            m.loserSpawn = new SerializableLocation(p.getLocation());
+            p.sendMessage(LanguageManager.get("lang.spawnlose", new String[]{mapName}));
+        } else if (mod.equalsIgnoreCase("win")) {
+            m.winnerSpawn = new SerializableLocation(p.getLocation());
+            p.sendMessage(LanguageManager.get("lang.spawnwin", new String[]{mapName}));
         } else {
             p.sendMessage(LanguageManager.get("lang.addorclear", new String[]{}));
         }
