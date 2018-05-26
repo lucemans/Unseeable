@@ -17,6 +17,7 @@ public class Map implements Serializable {
     public SerializableLocation posMark;
     public ArrayList<SerializableLocation> spawnPoints;
     public ArrayList<SerializableLocation> powerups;
+    public ArrayList<SerializableLocation> fireworks;
     public SerializableLocation loserSpawn;
     public SerializableLocation winnerSpawn;
     public int maxPlayers = 0;
@@ -30,6 +31,7 @@ public class Map implements Serializable {
     public Map(String name, Location negMark, Location posMark, Integer minPlayers, Integer maxPlayers) {
         spawnPoints = new ArrayList<SerializableLocation>();
         powerups = new ArrayList<SerializableLocation>();
+        fireworks = new ArrayList<SerializableLocation>();
         this.name = name;
         this.negMark = new SerializableLocation(negMark);
         this.posMark = new SerializableLocation(posMark);

@@ -1,6 +1,7 @@
 package nl.lucemans.unseeable;
 
 import nl.lucemans.NovaItems.NItem;
+import nl.lucemans.ninventory.NInventory;
 import nl.lucemans.unseeable.powerups.PowerupBase;
 import nl.lucemans.unseeable.system.Map;
 import nl.lucemans.unseeable.utils.*;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;

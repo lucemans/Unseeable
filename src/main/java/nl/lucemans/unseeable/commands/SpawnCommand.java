@@ -13,8 +13,8 @@ import org.inventivetalent.particle.ParticleEffect;
  */
 public class SpawnCommand implements BaseCommand {
 
-    // /usa spawn <name> clear <spawn/powerup>
-    // /usa spawn <name> add <spawn/powerup>
+    // /usa spawn <name> clear <spawn/powerup/firework>
+    // /usa spawn <name> add <spawn/powerup/firework>
     // /usa spawn <name> set <lose/win>
     public void execute(Player p, String[] args) {
         if (args.length < 4) {
@@ -42,8 +42,13 @@ public class SpawnCommand implements BaseCommand {
                 m.powerups.add(new SerializableLocation(p.getLocation()));
                 String size = "" + m.powerups.size();
                 p.sendMessage(LanguageManager.get("lang.spawnpowerup", new String[]{m.name, size}));
+            } else
+            if (set.equalsIgnoreCase("firework")) {
+                m.fireworks.add(new SerializableLocation(p.getLocation()));
+                String size = "" + m.fireworks.size();
+                p.sendMessage(LanguageManager.get("lang.spawnfirework", new String[]{m.name, size}));
             } else {
-                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <spawn/powerup>"}));
+                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <spawn/powerup/firework>"}));
             }
         } else
         if (mod.equalsIgnoreCase("set")) {
@@ -68,8 +73,12 @@ public class SpawnCommand implements BaseCommand {
                 m.powerups.clear();
                 String size = "" + m.powerups.size();
                 p.sendMessage(LanguageManager.get("lang.clearpowerup", new String[]{m.name}));
+            }if (set.equalsIgnoreCase("firework")) {
+                m.fireworks.clear();
+                String size = "" + m.fireworks.size();
+                p.sendMessage(LanguageManager.get("lang.clearfirework", new String[]{m.name}));
             } else {
-                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <spawn/powerup>"}));
+                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <spawn/powerup/firework>"}));
             }
         } else {
             p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn "+m.name+" <add/set/clear> <spawn/powerup/lose/win>"}));

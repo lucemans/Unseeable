@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 /*
@@ -28,14 +29,14 @@ public class PowerupBase {
         entity.getLocation().setPitch(entity.getLocation().getPitch() + 0.1f);
     }
 
-    public void trigger() {
-
+    public void trigger(Player p) {
+        p.sendMessage("POWER UP RECIEVED");
     }
 
     public void userMove(PlayerMoveEvent event) {
         if (event.getTo().getWorld().getName().equalsIgnoreCase(entity.getLocation().getWorld().getName())) {
             if (event.getTo().distance(entity.getLocation()) <= range) {
-                trigger();
+                trigger(event.getPlayer());
                 destroy();
             }
         }
