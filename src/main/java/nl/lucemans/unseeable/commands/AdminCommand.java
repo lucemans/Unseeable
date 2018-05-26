@@ -124,7 +124,9 @@ public class AdminCommand implements CommandExecutor {
     private void sendHelp(Player p) {
         p.sendMessage(Unseeable.parse("&7&m---"+Unseeable.NAME+"&4&lAdmin&7&m---"));
         p.sendMessage(Unseeable.parse("&6/usa setup <name> <minPlayers> <maxPlayers> &r|| &7Creates a map with parameters."));
-        p.sendMessage(Unseeable.parse("&6/usa spawn <name> <add|clear> &r|| &7Modifies the maps spawnpoints."));
+        p.sendMessage(Unseeable.parse("&6/usa spawn <name> add <spawn/powerup> &r|| &7Adds spawnpoints or powerups."));
+        p.sendMessage(Unseeable.parse("&6/usa spawn <name> set <lose/win> &r|| &7Modifies the maps endpositions."));
+        p.sendMessage(Unseeable.parse("&6/usa spawn <name> clear <spawn/powerup> &r|| &7Clears spawnpoints or powerups."));
         p.sendMessage(Unseeable.parse("&6/usa info <map> &r|| &7Gives Map Information."));
         p.sendMessage(Unseeable.parse("&6/usa stop &r|| &7Stops the current Game."));
         p.sendMessage(Unseeable.parse("&6/usa remove <map> &r|| &7Removes a map."));

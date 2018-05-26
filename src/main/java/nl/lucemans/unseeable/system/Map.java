@@ -21,12 +21,15 @@ public class Map implements Serializable {
     public SerializableLocation winnerSpawn;
     public int maxPlayers = 0;
     public int minPlayers = 0;
+    public int minPowerups = 0;
+    public int maxPowerups = -1;
     public int totalHearts = 20;
     public int speedBoost = 2;
     public int killsRequired = 15;
 
     public Map(String name, Location negMark, Location posMark, Integer minPlayers, Integer maxPlayers) {
         spawnPoints = new ArrayList<SerializableLocation>();
+        powerups = new ArrayList<SerializableLocation>();
         this.name = name;
         this.negMark = new SerializableLocation(negMark);
         this.posMark = new SerializableLocation(posMark);

@@ -1,6 +1,7 @@
 package nl.lucemans.unseeable;
 
 import nl.lucemans.NovaItems.NItem;
+import nl.lucemans.unseeable.powerups.PowerupBase;
 import nl.lucemans.unseeable.system.Map;
 import nl.lucemans.unseeable.utils.*;
 import org.bukkit.*;
@@ -29,7 +30,13 @@ public class GameInstance {
     }
 
     public Map m;
+    // Ingame stuff
     public ArrayList<Player> players;
+    public HashMap<String, Integer> kills;
+    public HashMap<String, LScoreboard> scoreboards;
+    public ArrayList<PowerupBase> powerups;
+
+    // Pregame stuff
     public HashMap<String, Location> lastLocation;
     public HashMap<String, HashMap<Integer, ItemStack>> lastItems;
     public HashMap<String, GameMode> lastGamemode;
@@ -41,8 +48,8 @@ public class GameInstance {
     public HashMap<String, Integer> lastLVL;
     public HashMap<String, String> lastDisplayName;
     public HashMap<String, Scoreboard> lastScoreboard;
-    public HashMap<String, Integer> kills;
-    public HashMap<String, LScoreboard> scoreboards;
+
+    // GameState stuff
     public Enum<GameState> state;
     public int StartTime = 0;
 
@@ -62,6 +69,7 @@ public class GameInstance {
         this.kills = new HashMap<String, Integer>();
         this.scoreboards = new HashMap<String, LScoreboard>();
         this.lastScoreboard = new HashMap<String, Scoreboard>();
+        this.powerups = new ArrayList<PowerupBase>();
         this.state = GameState.COLLECTING;
     }
 
@@ -143,6 +151,10 @@ public class GameInstance {
                     lscore.content.add(Unseeable.parse(" &c" + userplace + "&6. &rYou &5: &6" + r.get(p.getUniqueId().toString())));
                     lscore.update();
                 }
+            }
+
+            for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
+                powerupBase.tick();
             }
         }
 
@@ -314,6 +326,9 @@ public class GameInstance {
             Bukkit.getLogger().info("Leaving player " + p.getName());
             leavePlayer(p);
         }
+        for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
+            powerupBase.destroy();
+        }
         players.clear();
     }
 
@@ -321,6 +336,9 @@ public class GameInstance {
         state = GameState.STOPPED;
         for (Player p : players) {
             leavePlayer(p);
+        }
+        for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
+            powerupBase.destroy();
         }
         players.clear();
     }

@@ -5,6 +5,7 @@ import nl.lucemans.unseeable.system.Map;
 import nl.lucemans.unseeable.utils.LanguageManager;
 import nl.lucemans.unseeable.utils.SerializableLocation;
 import org.bukkit.entity.Player;
+import org.inventivetalent.particle.ParticleEffect;
 
 /*
  * Created by Lucemans at 20/05/2018
@@ -12,16 +13,18 @@ import org.bukkit.entity.Player;
  */
 public class SpawnCommand implements BaseCommand {
 
-    // /usa spawn <name> add
-    // /usa spawn <name> clear
+    // /usa spawn <name> clear <spawn/powerup>
+    // /usa spawn <name> add <spawn/powerup>
+    // /usa spawn <name> set <lose/win>
     public void execute(Player p, String[] args) {
-        if (args.length < 3) {
-            p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn <name> <add/clear/lose/win>"}));
+        if (args.length < 4) {
+            p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn <name> <add/set/clear> <spawn/powerup/lose/win>"}));
             return;
         }
 
-        String mapName = args[1];
-        String mod = args[2];
+        String mapName = args[1]; // City or Stone
+        String mod = args[2]; // add set or clear
+        String set = args[3]; // spawn powerup lose or win
 
         Map m = Unseeable.instance.findMap(mapName);
         if (m == null) {
@@ -30,20 +33,46 @@ public class SpawnCommand implements BaseCommand {
         }
 
         if (mod.equalsIgnoreCase("add")) {
-            m.spawnPoints.add(new SerializableLocation(p.getLocation()));
-            String size = "" + m.spawnPoints.size();
-            p.sendMessage(LanguageManager.get("lang.spawnadd", new String[]{m.name, size}));
-        } else if (mod.equalsIgnoreCase("clear")) {
-            m.spawnPoints.clone();
-            p.sendMessage(LanguageManager.get("lang.spawnclear", new String[]{mapName}));
-        } else if (mod.equalsIgnoreCase("lose")) {
-            m.loserSpawn = new SerializableLocation(p.getLocation());
-            p.sendMessage(LanguageManager.get("lang.spawnlose", new String[]{mapName}));
-        } else if (mod.equalsIgnoreCase("win")) {
-            m.winnerSpawn = new SerializableLocation(p.getLocation());
-            p.sendMessage(LanguageManager.get("lang.spawnwin", new String[]{mapName}));
+            if (set.equalsIgnoreCase("spawn")) {
+                m.spawnPoints.add(new SerializableLocation(p.getLocation()));
+                String size = "" + m.spawnPoints.size();
+                p.sendMessage(LanguageManager.get("lang.spawnadd", new String[]{m.name, size}));
+            } else
+            if (set.equalsIgnoreCase("powerup")) {
+                m.powerups.add(new SerializableLocation(p.getLocation()));
+                String size = "" + m.powerups.size();
+                p.sendMessage(LanguageManager.get("lang.spawnpowerup", new String[]{m.name, size}));
+            } else {
+                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <spawn/powerup>"}));
+            }
+        } else
+        if (mod.equalsIgnoreCase("set")) {
+            if (set.equalsIgnoreCase("lose")) {
+                m.loserSpawn = new SerializableLocation(p.getLocation());
+                p.sendMessage(LanguageManager.get("lang.spawnlose", new String[]{m.name}));
+            } else
+            if (set.equalsIgnoreCase("win")) {
+                m.winnerSpawn = new SerializableLocation(p.getLocation());
+                p.sendMessage(LanguageManager.get("lang.spawnwin", new String[]{m.name}));
+            } else {
+                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <lose/win>"}));
+            }
+        } else
+        if (mod.equalsIgnoreCase("clear")) {
+            if (set.equalsIgnoreCase("spawn")) {
+                m.spawnPoints.clear();
+                String size = "" + m.spawnPoints.size();
+                p.sendMessage(LanguageManager.get("lang.clearspawn", new String[]{m.name}));
+            } else
+            if (set.equalsIgnoreCase("powerup")) {
+                m.powerups.clear();
+                String size = "" + m.powerups.size();
+                p.sendMessage(LanguageManager.get("lang.clearpowerup", new String[]{m.name}));
+            } else {
+                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <spawn/powerup>"}));
+            }
         } else {
-            p.sendMessage(LanguageManager.get("lang.addorclear", new String[]{}));
+            p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn "+m.name+" <add/set/clear> <spawn/powerup/lose/win>"}));
         }
     }
 }
