@@ -155,8 +155,22 @@ public class GameInstance {
                 }
             }
 
-            for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
-                powerupBase.tick();
+            if (m.powerups.size() > 0) {
+                // do we need powerups?
+                while (powerups.size() < m.minPowerups) {
+                    spawnPowerup();
+                }
+                // do we want powerups?
+                if (powerups.size() < m.maxPowerups || (m.maxPowerups == -1 && powerups.size() < m.powerups.size())) {
+                    Random random = new Random();
+                    if (random.nextInt(1000) == 1) {
+                        spawnPowerup();
+                    }
+                }
+
+                for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
+                    powerupBase.tick();
+                }
             }
         }
 
@@ -172,6 +186,14 @@ public class GameInstance {
                             massSend(LanguageManager.get("lang.endin", new String[]{"NOW"}));
                         else
                             massSend(LanguageManager.get("lang.endin", new String[]{seconds + ""}));
+                    }
+                    if ((StartTime / 20) % 5 == 0) {
+                        // TODO: FIREWORKS MODE
+                        // every 5 second
+                        for (SerializableLocation floc : m.fireworks) {
+                            Location loc = floc.getLocation();
+                            InstantFirework fw = new InstantFirework(FireworkEffect.builder().withFade(Color.PURPLE).withFade(Color.BLUE).withTrail().withColor(Color.YELLOW).withColor(Color.LIME).build(), loc);
+                        }
                     }
                 }
             } else {
@@ -273,11 +295,10 @@ public class GameInstance {
         }
         if (state == GameState.INGAME && players.size() - 1 < m.minPlayers) {
             massSend("Game was canncelled due to not enough players.");
-            state = GameState.COLLECTING;
-            StartTime = 0;
+            stop();
         }
         if (players.size() == 0)
-            state = GameState.STOPPED;
+            stop();
     }
 
     public void start() {
@@ -359,10 +380,11 @@ public class GameInstance {
             event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
             if (event.getPlayer().getItemInHand().getType().equals(Material.DIAMOND_SWORD)) {
                 event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
-                return;
-            }
-            if (event.getFrom().getX() != event.getTo().getX() || event.getFrom().getY() != event.getTo().getY() || event.getTo().getZ() != event.getFrom().getZ()) {
+            } else if (event.getFrom().getX() != event.getTo().getX() || event.getFrom().getY() != event.getTo().getY() || event.getTo().getZ() != event.getFrom().getZ()) {
                 event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20, 10, false, false));
+            }
+            for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
+                powerupBase.userMove(event);
             }
         }
     }
@@ -378,5 +400,38 @@ public class GameInstance {
                 && loc.getY() <= m.posMark.y
                 && loc.getZ() >= m.negMark.z
                 && loc.getZ() <= m.posMark.z;
+    }
+
+    public boolean hasPowerupAt(Location loc) {
+        for (PowerupBase powerupBase : powerups) {
+            if (powerupBase.location.distance(loc) == 0)
+                return true;
+        }
+        return false;
+    }
+
+    public Location nextPowerup() {
+        Location empty = null;
+        ArrayList<SerializableLocation> tempPowerups = (ArrayList<SerializableLocation>) m.powerups.clone();
+        Collections.shuffle(tempPowerups);
+        for (SerializableLocation loc : tempPowerups) {
+            Location sr = loc.getLocation();
+            if (!hasPowerupAt(sr))
+            {
+                empty = sr;
+                break;
+            }
+        }
+        if (empty == null) {
+            empty = m.powerups.get(new Random().nextInt(m.powerups.size())).getLocation();
+        }
+        return empty;
+    }
+
+    public PowerupBase spawnPowerup() {
+        Location loc = nextPowerup();
+        PowerupBase powerupBase = new PowerupBase(loc);
+        powerups.add(powerupBase);
+        return powerupBase;
     }
 }

@@ -26,15 +26,30 @@ public class InfoCommand implements BaseCommand {
             return;
         }
 
-        p.sendMessage("------MapStatus------");
-        p.sendMessage("Name: " + m.name);
-        p.sendMessage("Min Players: " + m.minPlayers);
-        p.sendMessage("Max Players: " + m.maxPlayers);
-        p.sendMessage("Speed: " + m.speedBoost);
-        p.sendMessage("Health: " + m.totalHearts);
-        p.sendMessage("LoserTP: " + (m.loserSpawn != null ? ("x: " + m.loserSpawn.x + " y: " + m.loserSpawn.y + " z: " + m.loserSpawn.z + " world: " + m.loserSpawn.world) : ChatColor.RED + "Not Set"));
-        p.sendMessage("WinnerTP: " + (m.winnerSpawn != null ? ("x: " + m.winnerSpawn.x + " y: " + m.winnerSpawn.y + " z: " + m.winnerSpawn.z + " world: " + m.winnerSpawn.world) : ChatColor.RED + "Not Set"));
-        p.sendMessage("Spawnpoints: " + (m.spawnPoints.size() < 2 ? ChatColor.RED : ChatColor.GREEN) + m.spawnPoints.size());
-        p.sendMessage("IsSetup: " + (m.isSetup() ? "Yes" : "No"));
+        sendMsg(p, "------MapStatus------");
+        sendMsg(p, "Name: " + m.name);
+        sendMsg(p, "Kills required: " + m.killsRequired);
+        sendMsg(p, "Min Players: " + m.minPlayers);
+        sendMsg(p, "Max Players: " + m.maxPlayers);
+
+        sendMsg(p, "Speed: " + m.speedBoost);
+        sendMsg(p, "Health: " + m.totalHearts);
+
+        sendMsg(p, "LoserTP: " + (m.loserSpawn != null ? ("x: " + m.loserSpawn.x + " y: " + m.loserSpawn.y + " z: " + m.loserSpawn.z + " world: " + m.loserSpawn.world) : ChatColor.RED + "Not Set"));
+        sendMsg(p, "WinnerTP: " + (m.winnerSpawn != null ? ("x: " + m.winnerSpawn.x + " y: " + m.winnerSpawn.y + " z: " + m.winnerSpawn.z + " world: " + m.winnerSpawn.world) : ChatColor.RED + "Not Set"));
+        sendMsg(p, "Spawnpoints: " + (m.spawnPoints.size() < 2 ? ChatColor.RED : ChatColor.GREEN) + m.spawnPoints.size());
+        sendMsg(p, "Firework: " + (m.fireworks.size() > 0 ? m.fireworks.size() : "None"));
+        sendMsg(p, "Powerups: " + (m.powerups.size() > 0 ? m.powerups.size() : "None"));
+        if (m.powerups.size() > 0) {
+            sendMsg(p, "MinPowerups: " + m.minPowerups);
+            sendMsg(p, "MaxPowerups: " + (m.maxPowerups == -1 ? "Auto" : m.maxPowerups));
+        }
+        if (!m.isSetup())
+            sendMsg(p, "This map is &c&lNOT &rproperly setup.");
+    }
+
+    public void sendMsg(Player p, String str) {
+        p.sendMessage(Unseeable.parse(str));
+
     }
 }

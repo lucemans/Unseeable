@@ -23,6 +23,7 @@ public class AdminCommand implements CommandExecutor {
     private StopCommand stopCommand = new StopCommand();
     private RemoveCommand removeCommand = new RemoveCommand();
     private ForceStartCommand forceStartCommand = new ForceStartCommand();
+    private PropertyCommand propertyCommand = new PropertyCommand();
 
     // -/usa setup <name> <minPlayers> <maxPlayers>
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -113,6 +114,10 @@ public class AdminCommand implements CommandExecutor {
             removeCommand.execute(p, args);
             return true;
         }
+        if (args[0].equalsIgnoreCase("property")) {
+            propertyCommand.execute(p, args);
+            return true;
+        }
         if (args[0].equalsIgnoreCase("help")) {
             sendHelp(p);
             return true;
@@ -128,6 +133,7 @@ public class AdminCommand implements CommandExecutor {
         p.sendMessage(Unseeable.parse("&6/usa spawn <name> set <lose/win> &r|| &7Modifies the maps endpositions."));
         p.sendMessage(Unseeable.parse("&6/usa spawn <name> clear <spawn/powerup/firework> &r|| &7Clears spawnpoints, firework or powerups."));
         p.sendMessage(Unseeable.parse("&6/usa info <map> &r|| &7Gives Map Information."));
+        p.sendMessage(Unseeable.parse("&6/usa property <map> <property> <value> &r|| &7Set a property."));
         p.sendMessage(Unseeable.parse("&6/usa stop &r|| &7Stops the current Game."));
         p.sendMessage(Unseeable.parse("&6/usa remove <map> &r|| &7Removes a map."));
         p.sendMessage(Unseeable.parse("&6/usa help &r|| &7Shows this help menu."));

@@ -3,6 +3,8 @@ package nl.lucemans.unseeable;
 import nl.lucemans.unseeable.commands.AdminCommand;
 import nl.lucemans.unseeable.commands.UnseeableCommand;
 import nl.lucemans.unseeable.system.Map;
+import nl.lucemans.unseeable.tabcompleter.AdminCompleter;
+import nl.lucemans.unseeable.tabcompleter.UnseeableCompleter;
 import nl.lucemans.unseeable.utils.LanguageManager;
 import nl.lucemans.unseeable.utils.NametagChanger;
 import nl.lucemans.unseeable.utils.TeamAction;
@@ -12,19 +14,21 @@ import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Created by Lucemans at 10/05/2018
@@ -67,6 +71,8 @@ public class Unseeable extends JavaPlugin implements Listener {
 
         getCommand("unseeable").setExecutor(new UnseeableCommand());
         getCommand("unseeableadmin").setExecutor(new AdminCommand());
+        getCommand("unseeable").setTabCompleter(new UnseeableCompleter());
+        getCommand("unseeableadmin").setTabCompleter(new AdminCompleter());
 
         Bukkit.getPluginManager().registerEvents(this, this);
 
@@ -106,6 +112,17 @@ public class Unseeable extends JavaPlugin implements Listener {
             }
         }
         return null;
+    }
+
+
+    public List<String> mapsStartingWith(String str) {
+        List<String> _maps = new ArrayList<String>();
+        for (Map m : maps) {
+            if (m.name.toLowerCase().startsWith(str.toLowerCase())) {
+                _maps.add(m.name);
+            }
+        }
+        return _maps;
     }
 
     public boolean hasWorkingMap() {
@@ -160,6 +177,11 @@ public class Unseeable extends JavaPlugin implements Listener {
     }
 
     @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+
+    }
+
+    @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player) {
             if (event.getEntity() instanceof Player) {
@@ -180,6 +202,8 @@ public class Unseeable extends JavaPlugin implements Listener {
                             // successfull hit ingame
                             if (((Player) event.getEntity()).getHealth() - event.getFinalDamage() <= 0.0) {
                                 currentGame.spawnPlayer((Player) event.getEntity());
+                                event.setCancelled(true);
+                                event.setDamage(0.0);
                                 event.getDamager().sendMessage("Kill");
                                 currentGame.kills.put(event.getDamager().getUniqueId().toString(), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + 1);
 
@@ -221,6 +245,15 @@ public class Unseeable extends JavaPlugin implements Listener {
                 event.getPlayer().sendMessage(LanguageManager.get("lang.nocmdingame", new String[]{event.getMessage()}));
                 event.setCancelled(true);
                 return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onLeave(PlayerQuitEvent event) {
+        if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED) {
+            if (currentGame.players.contains(event.getPlayer())) {
+                currentGame.leavePlayer(event.getPlayer());
             }
         }
     }

@@ -73,12 +73,13 @@ public class SpawnCommand implements BaseCommand {
                 m.powerups.clear();
                 String size = "" + m.powerups.size();
                 p.sendMessage(LanguageManager.get("lang.clearpowerup", new String[]{m.name}));
-            }if (set.equalsIgnoreCase("firework")) {
+            } else
+            if (set.equalsIgnoreCase("firework")) {
                 m.fireworks.clear();
                 String size = "" + m.fireworks.size();
                 p.sendMessage(LanguageManager.get("lang.clearfirework", new String[]{m.name}));
             } else {
-                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <spawn/powerup/firework>"}));
+                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " clear <spawn/powerup/firework>"}));
             }
         } else {
             p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn "+m.name+" <add/set/clear> <spawn/powerup/lose/win>"}));

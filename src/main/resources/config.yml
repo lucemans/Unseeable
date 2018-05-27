@@ -43,3 +43,5 @@ lang:
   chooseamap: "Choose a map ($1)"
   mapicon: "WOOL"
   maptitle: "&a&l$1"
+  noint: "%prefix '$1' is not a valid Number"
+  propertyupdate: "%prefix '$1' updated to '$2' for '$3'."
