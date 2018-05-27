@@ -42,10 +42,24 @@
       <file leaf-file-name="AdminCompleter.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/tabcompleter/AdminCompleter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="307">
-              <caret line="19" column="12" lean-forward="false" selection-start-line="19" selection-start-column="12" selection-end-line="19" selection-end-column="12" />
+            <state relative-caret-position="60">
+              <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LucTabCompleter.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/tabcompleter/LucTabCompleter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="295">
+              <caret line="24" column="19" lean-forward="true" selection-start-line="24" selection-start-column="19" selection-end-line="24" selection-end-column="19" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#466#474#0" expanded="true" />
+                <element signature="e#895#903#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -132,6 +146,7 @@
         <option value="$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/tabcompleter/UnseeableCompleter.java" />
         <option value="$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/Unseeable.java" />
         <option value="$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/tabcompleter/AdminCompleter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/tabcompleter/LucTabCompleter.java" />
       </list>
     </option>
   </component>
@@ -426,12 +441,12 @@
       <workItem from="1526933057474" duration="6070000" />
       <workItem from="1527280923414" duration="30914000" />
       <workItem from="1527422293769" duration="348000" />
-      <workItem from="1527457940066" duration="782000" />
+      <workItem from="1527457940066" duration="2262000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="86984000" />
+    <option name="totallyTimeSpent" value="88464000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="18" width="1840" height="1016" extended-state="6" />
@@ -445,7 +460,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.116292134" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.06705202" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21271676" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32947975" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -476,26 +491,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/commands/SpawnCommand.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="780">
-          <caret line="43" column="60" lean-forward="false" selection-start-line="43" selection-start-column="60" selection-end-line="43" selection-end-column="60" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/Unseeable.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding>
-            <element signature="e#3835#3843#0" expanded="true" />
-            <element signature="e#4228#4229#0" expanded="true" />
-            <element signature="e#4299#4300#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/GameInstance.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="220">
@@ -818,7 +813,7 @@
         <state relative-caret-position="260">
           <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -836,10 +831,10 @@
         <state relative-caret-position="380">
           <caret line="19" column="8" lean-forward="true" selection-start-line="19" selection-start-column="8" selection-end-line="19" selection-end-column="8" />
           <folding>
-            <element signature="e#1188#1189#0" expanded="true" />
-            <element signature="e#1218#1219#0" expanded="true" />
-            <element signature="e#1280#1281#0" expanded="true" />
-            <element signature="e#1311#1312#0" expanded="true" />
+            <element signature="e#1188#1189#0" expanded="false" />
+            <element signature="e#1218#1219#0" expanded="false" />
+            <element signature="e#1280#1281#0" expanded="false" />
+            <element signature="e#1311#1312#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -900,10 +895,54 @@
         </state>
       </provider>
     </entry>
+    <entry file="uml://MAVEN/nl.lucemans:Unseeable:1.0-SNAPSHOT">
+      <provider selected="true" editor-type-id="UmlEditorProvider">
+        <state>
+          <ID>MAVEN</ID>
+          <OriginalElement>nl.lucemans:Unseeable:1.0-SNAPSHOT</OriginalElement>
+          <nodes>
+            <node x="" y="">nl.lucemans:Unseeable:1.0-SNAPSHOT</node>
+            <node x="" y="">org.inventivetalent:particleapi:jar:2.1.1</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/commons-lang:commons-lang:jar:2.6</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/com.googlecode.json-simple:json-simple:jar:1.1.1</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/com.googlecode.json-simple:json-simple:jar:1.1.1/junit:junit:jar:4.10</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/com.googlecode.json-simple:json-simple:jar:1.1.1/junit:junit:jar:4.10/org.hamcrest:hamcrest-core:jar:1.1</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/com.google.guava:guava:jar:21.0</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/com.google.code.gson:gson:jar:2.8.0</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/org.yaml:snakeyaml:jar:1.19</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/net.md-5:bungeecord-chat:jar:1.12-20180513.014306-84</node>
+            <node x="" y="">org.spigotmc:spigot-api:jar:1.12.2-R0.1-20180519.032859-146/net.md-5:bungeecord-chat:jar:1.12-20180513.014306-84/com.google.guava:guava:jar:20.0</node>
+            <node x="" y="">org.bukkit:bukkit:jar:1.12.2-R0.1-20180519.032916-145</node>
+            <node x="" y="">nl.lucemans:NovaItems:jar:1.3-SNAPSHOT</node>
+            <node x="" y="">nl.lucemans:NovaInventory:jar:2.1-SNAPSHOT</node>
+            <node x="" y="">com.sk89q.worldedit:worldedit-bukkit:jar:6.1.5</node>
+          </nodes>
+          <notes />
+          <edges />
+          <settings layout="Hierarchic Group" zoom="1.0" x="427.0" y="202.5" />
+          <SelectedNodes />
+          <Categories />
+          <VISIBILITY>All</VISIBILITY>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/tabcompleter/LucTabCompleter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="295">
+          <caret line="24" column="19" lean-forward="true" selection-start-line="24" selection-start-column="19" selection-end-line="24" selection-end-column="19" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#466#474#0" expanded="true" />
+            <element signature="e#895#903#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/nl/lucemans/unseeable/tabcompleter/AdminCompleter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="307">
-          <caret line="19" column="12" lean-forward="false" selection-start-line="19" selection-start-column="12" selection-end-line="19" selection-end-column="12" />
+        <state relative-caret-position="60">
+          <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
