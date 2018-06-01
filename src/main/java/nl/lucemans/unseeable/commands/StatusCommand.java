@@ -28,5 +28,9 @@ public class StatusCommand implements BaseCommand {
         for (Player p2 : inst.players) {
             p.sendMessage(" " + p2.getName());
         }
+        p.sendMessage("Spectators: ");
+        for (Player p2 : inst.spectators) {
+            p.sendMessage(" " + p2.getName());
+        }
     }
 }

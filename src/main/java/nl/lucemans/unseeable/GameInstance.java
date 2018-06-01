@@ -34,30 +34,34 @@ public class GameInstance {
     public Map m;
     // Ingame stuff
     public ArrayList<Player> players;
+    public ArrayList<Player> spectators;
     public HashMap<String, Integer> kills;
-    public HashMap<String, LScoreboard> scoreboards;
+    private HashMap<String, LScoreboard> scoreboards;
     public ArrayList<PowerupBase> powerups;
 
     // Pregame stuff
-    public HashMap<String, Location> lastLocation;
-    public HashMap<String, HashMap<Integer, ItemStack>> lastItems;
-    public HashMap<String, GameMode> lastGamemode;
-    public HashMap<String, Double> fullHearts;
-    public HashMap<String, Double> startHearts;
-    public HashMap<String, Integer> startHunger;
-    public HashMap<String, Float> lastSpeed;
-    public HashMap<String, Float> lastXP;
-    public HashMap<String, Integer> lastLVL;
-    public HashMap<String, String> lastDisplayName;
-    public HashMap<String, Scoreboard> lastScoreboard;
+    private HashMap<String, Location> lastLocation;
+    private HashMap<String, HashMap<Integer, ItemStack>> lastItems;
+    private HashMap<String, GameMode> lastGamemode;
+    private HashMap<String, Double> fullHearts;
+    private HashMap<String, Double> startHearts;
+    private HashMap<String, Integer> startHunger;
+    private HashMap<String, Float> lastSpeed;
+    private HashMap<String, Float> lastXP;
+    private HashMap<String, Integer> lastLVL;
+    private HashMap<String, String> lastDisplayName;
+    private HashMap<String, Scoreboard> lastScoreboard;
+    private HashMap<String, Boolean> lastAllowFlight;
+    private HashMap<String, Boolean> lastFlight;
 
     // GameState stuff
     public Enum<GameState> state;
-    public int StartTime = 0;
+    private int StartTime = 0;
 
     public GameInstance(Map m) {
         this.m = m;
         this.players = new ArrayList<Player>();
+        this.spectators = new ArrayList<Player>();
         this.lastLocation = new HashMap<String, Location>();
         this.lastItems = new HashMap<String, HashMap<Integer, ItemStack>>();
         this.lastGamemode = new HashMap<String, GameMode>();
@@ -72,6 +76,8 @@ public class GameInstance {
         this.scoreboards = new HashMap<String, LScoreboard>();
         this.lastScoreboard = new HashMap<String, Scoreboard>();
         this.powerups = new ArrayList<PowerupBase>();
+        this.lastFlight = new HashMap<String, Boolean>();
+        this.lastAllowFlight = new HashMap<String, Boolean>();
         this.state = GameState.COLLECTING;
     }
 
@@ -106,6 +112,7 @@ public class GameInstance {
             }
         }
         if (state == GameState.INGAME) {
+            // Check for winner
             for (Player p : players) {
                 if (kills.containsKey(p.getUniqueId().toString())) {
                     if (kills.get(p.getUniqueId().toString()) >= m.killsRequired) {
@@ -122,12 +129,22 @@ public class GameInstance {
                     }
                 }
 
+                // respawn player
                 if (!isInField(p.getLocation())) {
                     spawnPlayer(p);
                 }
             }
+            // Apply Effects to Spectators
+            for (Player p : spectators) {
+                p.removePotionEffect(PotionEffectType.INVISIBILITY);
+                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20*4, 1));
+            }
+
+            /** SCOREBOARDS */
+            // Sort the list
             java.util.Map<String, Integer> r = MapUtil.sortByComparator((HashMap<String, Integer>) kills.clone(), false);
 
+            // Send players scoreboards
             for (Player p : players) {
                 if (scoreboards.containsKey(p.getUniqueId().toString())) {
                     LScoreboard lscore = scoreboards.get(p.getUniqueId().toString());
@@ -137,24 +154,45 @@ public class GameInstance {
                     lscore.spacer();
                     Integer place = 1;
                     for (String str : r.keySet()) {
-                        if (place >= 4)
+                        if (place > 3)
                             break;
                         OfflinePlayer ofp = Bukkit.getOfflinePlayer(UUID.fromString(str));
-                        lscore.content.add(Unseeable.parse(" &c" + place + "&6. &r" + ofp.getName() + " &5: &6" + r.get(str)));
+                        lscore.content.add(Unseeable.parse(/*" &c" + place + "&6. &r" + ofp.getName() + " &5: &6" + r.get(str)*/ " &r" + r.get(str) + " " + (place == 1 ? "&6" : place == 2 ? "&a" : "&b") + ofp.getName()));
                         place++;
                     }
-                    lscore.spacer();
                     Integer userplace = 0;
                     for (String str : r.keySet()) {
                         userplace++;
                         if (str.equalsIgnoreCase(p.getUniqueId().toString()))
                             break;
                     }
-                    lscore.content.add(Unseeable.parse(" &c" + userplace + "&6. &rYou &5: &6" + r.get(p.getUniqueId().toString())));
+                    if (userplace > 3) {
+                        lscore.spacer();
+                        lscore.content.add(Unseeable.parse(" &c" + userplace + "&6. &rYou &5: &6" + r.get(p.getUniqueId().toString())));
+                    }
+                    lscore.update();
+                }
+            }
+            for (Player p : spectators) {
+                if (scoreboards.containsKey(p.getUniqueId().toString())) {
+                    LScoreboard lscore = scoreboards.get(p.getUniqueId().toString());
+                    lscore.name = Unseeable.parse("&7&m---" + Unseeable.NAME + "&7&m---");
+                    lscore.content = new ArrayList<String>(Arrays.asList(Unseeable.parse("First to &6" + m.killsRequired + "&r wins!")));
+                    lscore.linesSkipped = 0;
+                    lscore.spacer();
+                    Integer place = 1;
+                    for (String str : r.keySet()) {
+                        if (place >= 6)
+                            break;
+                        OfflinePlayer ofp = Bukkit.getOfflinePlayer(UUID.fromString(str));
+                        lscore.content.add(Unseeable.parse(" &c" + place + "&6. &r" + ofp.getName() + " &5: &6" + r.get(str)));
+                        place++;
+                    }
                     lscore.update();
                 }
             }
 
+            // Regulate Powerups
             if (m.powerups.size() > 0) {
                 // do we need powerups?
                 while (powerups.size() < m.minPowerups) {
@@ -199,8 +237,65 @@ public class GameInstance {
             } else {
                 finish();
             }
+
+            // Organize the list again.
+            java.util.Map<String, Integer> r = MapUtil.sortByComparator((HashMap<String, Integer>) kills.clone(), false);
+
+            // Winner
+            Player winner = null;
+            for (String str : r.keySet()) {
+                winner = Bukkit.getPlayer(UUID.fromString(str));
+                break;
+            }
+
+            // Send players scoreboards
+            for (Player p : players) {
+                if (scoreboards.containsKey(p.getUniqueId().toString())) {
+                    LScoreboard lscore = scoreboards.get(p.getUniqueId().toString());
+                    lscore.name = Unseeable.parse("&7&m---" + Unseeable.NAME + "&7&m---");
+                    lscore.content = new ArrayList<String>(Arrays.asList(Unseeable.parse(winner.getName() + " Has Won!")));
+                    lscore.linesSkipped = 0;
+                    lscore.spacer();
+                    Integer place = 1;
+                    for (String str : r.keySet()) {
+                        if (place >= 4)
+                            break;
+                        OfflinePlayer ofp = Bukkit.getOfflinePlayer(UUID.fromString(str));
+                        lscore.content.add(Unseeable.parse(" &c" + place + "&6. &r" + ofp.getName() + " &5: &6" + r.get(str)));
+                        place++;
+                    }
+                    lscore.spacer();
+                    Integer userplace = 0;
+                    for (String str : r.keySet()) {
+                        userplace++;
+                        if (str.equalsIgnoreCase(p.getUniqueId().toString()))
+                            break;
+                    }
+                    lscore.content.add(Unseeable.parse(" &c" + userplace + "&6. &rYou &5: &6" + r.get(p.getUniqueId().toString())));
+                    lscore.update();
+                }
+            }
+            for (Player p : spectators) {
+                if (scoreboards.containsKey(p.getUniqueId().toString())) {
+                    LScoreboard lscore = scoreboards.get(p.getUniqueId().toString());
+                    lscore.name = Unseeable.parse("&7&m---" + Unseeable.NAME + "&7&m---");
+                    lscore.content = new ArrayList<String>(Arrays.asList(Unseeable.parse(winner.getName() + " Has Won!")));
+                    lscore.linesSkipped = 0;
+                    lscore.spacer();
+                    Integer place = 1;
+                    for (String str : r.keySet()) {
+                        if (place >= 6)
+                            break;
+                        OfflinePlayer ofp = Bukkit.getOfflinePlayer(UUID.fromString(str));
+                        lscore.content.add(Unseeable.parse(" &c" + place + "&6. &r" + ofp.getName() + " &5: &6" + r.get(str)));
+                        place++;
+                    }
+                    lscore.update();
+                }
+            }
         }
 
+        /** FOOD **/
         if (state == GameState.DISPLAY || state == GameState.INGAME) {
             for (Player p : players) {
                 p.setSaturation(20f);
@@ -210,6 +305,10 @@ public class GameInstance {
                     p.setLevel(kills.get(p.getUniqueId().toString()));
                     p.setExp((float) kills.get(p.getUniqueId().toString()) / m.killsRequired);
                 }
+            }
+            for (Player p : spectators) {
+                p.setSaturation(20f);
+                p.setFoodLevel(20);
             }
         }
     }
@@ -255,7 +354,52 @@ public class GameInstance {
         p.sendMessage(LanguageManager.get("lang.gamestillprogress", new String[]{}));
     }
 
-    public void leavePlayer(Player p) {
+    public void joinSpectator(Player p) {
+        joinGeneric(p);
+
+        //NametagChanger.changePlayerName(p, "0/" + m.killsRequired + " ", "", TeamAction.CREATE);
+        p.setGameMode(GameMode.ADVENTURE);
+        p.getInventory().clear();
+        p.getInventory().setHeldItemSlot(0);
+        p.getInventory().setItem(0, NItem.create(Material.COMPASS).setName("&7Player Selector").setEnchantment(Enchantment.DURABILITY, 2).make());
+
+        p.setAllowFlight(true);
+        p.setFlying(true);
+
+        p.teleport(m.spectatorSpawn.getLocation());
+
+        spectators.add(p);
+    }
+
+    public void joinGeneric(Player p) {
+        lastLocation.put(p.getUniqueId().toString(), p.getLocation().clone());
+        lastGamemode.put(p.getUniqueId().toString(), p.getGameMode());
+        startHearts.put(p.getUniqueId().toString(), p.getHealth());
+        startHunger.put(p.getUniqueId().toString(), p.getFoodLevel());
+        fullHearts.put(p.getUniqueId().toString(), p.getHealthScale());
+        lastSpeed.put(p.getUniqueId().toString(), p.getWalkSpeed());
+        lastXP.put(p.getUniqueId().toString(), p.getExp());
+        lastLVL.put(p.getUniqueId().toString(), p.getLevel());
+        lastDisplayName.put(p.getUniqueId().toString(), p.getDisplayName());
+        lastScoreboard.put(p.getUniqueId().toString(), p.getScoreboard());
+        lastAllowFlight.put(p.getUniqueId().toString(), p.getAllowFlight());
+        lastFlight.put(p.getUniqueId().toString(), p.isFlying());
+
+        HashMap<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
+        Integer slot = 0;
+        for (ItemStack item : p.getInventory().getContents()) {
+            items.put(slot, item);
+            slot++;
+        }
+        lastItems.put(p.getUniqueId().toString(), items);
+
+        // setup scoreboard
+        LScoreboard scoreboard = new LScoreboard();
+        scoreboards.put(p.getUniqueId().toString(), scoreboard);
+        p.setScoreboard(scoreboard.scoreboard);
+    }
+
+    public void leaveGeneric(Player p) {
         if (lastLocation.containsKey(p.getUniqueId().toString()))
             p.teleport(lastLocation.get(p.getUniqueId().toString()));
         if (lastGamemode.containsKey(p.getUniqueId().toString()))
@@ -283,6 +427,14 @@ public class GameInstance {
             p.setDisplayName(lastDisplayName.get(p.getUniqueId().toString()));
         if (lastScoreboard.containsKey(p.getUniqueId().toString()))
             p.setScoreboard(lastScoreboard.get(p.getUniqueId().toString()));
+        if (lastFlight.containsKey(p.getUniqueId().toString()))
+            p.setFlying(lastFlight.get(p.getUniqueId().toString()));
+        if (lastAllowFlight.containsKey(p.getUniqueId().toString()))
+            p.setAllowFlight(lastAllowFlight.get(p.getUniqueId().toString()));
+    }
+
+    public void leavePlayer(Player p) {
+        leaveGeneric(p);
 
         p.setSprinting(false);
 
@@ -301,35 +453,30 @@ public class GameInstance {
             stop();
     }
 
+    public void leaveSpectator(Player p) {
+        leaveGeneric(p);
+
+        p.setSprinting(false);
+
+        if (state == GameState.STARTING && players.size() - 1 < m.minPlayers) {
+            massSend("Game Start was canncelled due to not enough players.");
+            state = GameState.COLLECTING;
+            StartTime = 0;
+        }
+        if (state == GameState.INGAME && players.size() - 1 < m.minPlayers) {
+            massSend("Game was canncelled due to not enough players.");
+            stop();
+        }
+        if (players.size() == 0)
+            stop();
+    }
+
     public void start() {
         StartTime = 0;
-        ScoreboardManager scoreman = Bukkit.getScoreboardManager();
         for (Player p : players) {
-            lastLocation.put(p.getUniqueId().toString(), p.getLocation().clone());
-            lastGamemode.put(p.getUniqueId().toString(), p.getGameMode());
-            startHearts.put(p.getUniqueId().toString(), p.getHealth());
-            startHunger.put(p.getUniqueId().toString(), p.getFoodLevel());
-            fullHearts.put(p.getUniqueId().toString(), p.getHealthScale());
-            lastSpeed.put(p.getUniqueId().toString(), p.getWalkSpeed());
-            lastXP.put(p.getUniqueId().toString(), p.getExp());
-            lastLVL.put(p.getUniqueId().toString(), p.getLevel());
-            lastDisplayName.put(p.getUniqueId().toString(), p.getDisplayName());
-            lastScoreboard.put(p.getUniqueId().toString(), p.getScoreboard());
+            joinGeneric(p);
 
             kills.put(p.getUniqueId().toString(), 0);
-
-            HashMap<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
-            Integer slot = 0;
-            for (ItemStack item : p.getInventory().getContents()) {
-                items.put(slot, item);
-                slot++;
-            }
-            lastItems.put(p.getUniqueId().toString(), items);
-
-            // setup scoreboard
-            LScoreboard scoreboard = new LScoreboard();
-            scoreboards.put(p.getUniqueId().toString(), scoreboard);
-            p.setScoreboard(scoreboard.scoreboard);
 
             NametagChanger.changePlayerName(p, "0/" + m.killsRequired + " ", "", TeamAction.CREATE);
             p.setGameMode(GameMode.ADVENTURE);
@@ -346,13 +493,16 @@ public class GameInstance {
         state = GameState.STOPPED;
         massSend(LanguageManager.get("lang.stop", new String[]{}));
         for (Player p : players) {
-            Bukkit.getLogger().info("Leaving player " + p.getName());
             leavePlayer(p);
+        }
+        for (Player p : spectators) {
+            leaveSpectator(p);
         }
         for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
             powerupBase.destroy();
         }
         players.clear();
+        spectators.clear();
     }
 
     public void finish() {
@@ -360,10 +510,14 @@ public class GameInstance {
         for (Player p : players) {
             leavePlayer(p);
         }
+        for (Player p : spectators) {
+            leaveSpectator(p);
+        }
         for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
             powerupBase.destroy();
         }
         players.clear();
+        spectators.clear();
     }
 
     public void massSend(String msg) {

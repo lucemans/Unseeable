@@ -33,7 +33,7 @@ public class AdminCompleter extends LucTabCompleter {
                     suggest(args[3], "spawn", "powerup", "firework");
                 }
                 if (args[2].equalsIgnoreCase("set")) {
-                    suggest(args[3], "lose", "win");
+                    suggest(args[3], "lose", "win", "spectate");
                 }
             }
         }

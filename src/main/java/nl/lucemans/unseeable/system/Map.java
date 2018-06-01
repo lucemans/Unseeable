@@ -20,6 +20,7 @@ public class Map implements Serializable {
     public ArrayList<SerializableLocation> fireworks;
     public SerializableLocation loserSpawn;
     public SerializableLocation winnerSpawn;
+    public SerializableLocation spectatorSpawn;
     public int maxPlayers = 0;
     public int minPlayers = 0;
     public int minPowerups = 0;
@@ -40,7 +41,7 @@ public class Map implements Serializable {
     }
 
     public boolean isSetup() {
-        return (loserSpawn != null && winnerSpawn != null && name != null && negMark != null && posMark != null && spawnPoints != null && spawnPoints.size() > 0 && maxPlayers != 0 && minPlayers != 0);
+        return (spectatorSpawn != null && loserSpawn != null && winnerSpawn != null && name != null && negMark != null && posMark != null && spawnPoints != null && spawnPoints.size() > 0 && maxPlayers != 0 && minPlayers != 0);
     }
 
 }

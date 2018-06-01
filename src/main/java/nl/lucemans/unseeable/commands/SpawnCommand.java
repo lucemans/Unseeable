@@ -59,6 +59,10 @@ public class SpawnCommand implements BaseCommand {
             if (set.equalsIgnoreCase("win")) {
                 m.winnerSpawn = new SerializableLocation(p.getLocation());
                 p.sendMessage(LanguageManager.get("lang.spawnwin", new String[]{m.name}));
+            } else
+            if (set.equalsIgnoreCase("spectate")) {
+                m.spectatorSpawn = new SerializableLocation(p.getLocation());
+                p.sendMessage(LanguageManager.get("lang.spawnspectate", new String[]{m.name}));
             } else {
                 p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <lose/win>"}));
             }

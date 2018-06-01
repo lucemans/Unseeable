@@ -8,16 +8,19 @@ import nl.lucemans.unseeable.tabcompleter.UnseeableCompleter;
 import nl.lucemans.unseeable.utils.LanguageManager;
 import nl.lucemans.unseeable.utils.NametagChanger;
 import nl.lucemans.unseeable.utils.TeamAction;
+import nl.lucemans.unseeable.utils.Updater;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -50,6 +53,15 @@ public class Unseeable extends JavaPlugin implements Listener {
         instance = this;
 
         saveDefaultConfig();
+
+        File updated_File = Updater.run(this, false);
+        if (updated_File != null) {
+            Updater.unload(this);
+            Updater.load(updated_File);
+            return;
+        }
+
+        Bukkit.getLogger().info("Initializing Unseeable Version " + this.getDescription().getVersion());
 
         // Load maps
         if (!getDataFolder().exists())
@@ -84,6 +96,19 @@ public class Unseeable extends JavaPlugin implements Listener {
         }, 1L, 1L);
     }
 
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void commandPreprocess(PlayerCommandPreprocessEvent event) {
+        if (event.getMessage().startsWith("/usa update")) {
+            event.setMessage(event.getMessage().replace("usa update", "").replace("/ ", "/").trim());
+            File updated_File = Updater.run(this, true);
+            if (updated_File != null) {
+                Updater.unload(this);
+                Updater.load(updated_File);
+                return;
+            }
+        }
+    }
+
     @Override
     public void onDisable() {
 
@@ -103,6 +128,15 @@ public class Unseeable extends JavaPlugin implements Listener {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected File getFile() {
+        return super.getFile();
+    }
+
+    public File getJar() {
+        return this.getFile();
     }
 
     public Map findMap(String name) {
@@ -143,9 +177,13 @@ public class Unseeable extends JavaPlugin implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (event.getClickedBlock().getType() == Material.WALL_SIGN || event.getClickedBlock().getType() == Material.SIGN_POST) {
                 Sign s = (Sign) event.getClickedBlock().getState();
-                if (s.getLine(0).equalsIgnoreCase(parse("&c["+NAME+"&c]"))) {
+                if (s.getLine(0).equalsIgnoreCase(LanguageManager.get("lang.sign", new String[]{}))) {
+                    if (s.getLine(1).equalsIgnoreCase(parse("&7Menu"))) {
+                        event.getPlayer().performCommand("us join");
+                        return;
+                    }
                     // it is one of our signs
-                    event.getPlayer().sendMessage(s.getLine(1).replace(parse("&a&l"), ""));
+                    //event.getPlayer().sendMessage(s.getLine(1).replace(parse("&a&l"), ""));
                     Map m = findMap (s.getLine(1).replace(parse("&a&l"), ""));
                     if (m == null) {
                         event.getPlayer().sendMessage(parse("Could not find map."));
@@ -178,6 +216,11 @@ public class Unseeable extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
+
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageEvent event) {
 
     }
 
@@ -261,7 +304,7 @@ public class Unseeable extends JavaPlugin implements Listener {
     @EventHandler
     public void onSign(SignChangeEvent event) {
         if (event.getLine(0).equalsIgnoreCase("[usa]")) {
-            event.setLine(0, parse("&c["+NAME+"&c]"));
+            event.setLine(0, LanguageManager.get("lang.sign", new String[]{}));
 
             if (event.getLine(1).equalsIgnoreCase("join")) {
                 Map m = findMap(event.getLine(2));
@@ -281,6 +324,10 @@ public class Unseeable extends JavaPlugin implements Listener {
                 {
                     event.getPlayer().sendMessage(parse("&cPlease specify a map on the third line."));
                 }
+            } else if (event.getLine(1).equalsIgnoreCase("menu")) {
+                event.setLine(1, parse("&7Menu"));
+                event.getPlayer().sendMessage(parse("&aSuccessfully created a menu sign!"));
+                return;
             }
             else
             {
