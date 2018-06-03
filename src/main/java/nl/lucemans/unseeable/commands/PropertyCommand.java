@@ -36,6 +36,15 @@ public class PropertyCommand implements BaseCommand {
             }
             p.sendMessage(LanguageManager.get("lang.propertyupdate", new String[]{property, m.killsRequired + "", m.name}));
         }
+        if (property.equalsIgnoreCase("speed")) {
+            try {
+                m.speedBoost = Integer.parseInt(value);
+            }catch (Exception e) {
+                p.sendMessage(LanguageManager.get("lang.notint", new String[]{}));
+                return;
+            }
+            p.sendMessage(LanguageManager.get("lang.propertyupdate", new String[]{property, m.minPowerups + "", m.name}));
+        }
         if (property.equalsIgnoreCase("minPowerups")) {
             try {
                 m.minPowerups = Integer.parseInt(value);
