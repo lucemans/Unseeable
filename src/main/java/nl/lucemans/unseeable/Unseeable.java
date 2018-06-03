@@ -1,5 +1,6 @@
 package nl.lucemans.unseeable;
 
+import com.sun.glass.ui.Menu;
 import nl.lucemans.unseeable.commands.AdminCommand;
 import nl.lucemans.unseeable.commands.UnseeableCommand;
 import nl.lucemans.unseeable.system.Map;
@@ -22,10 +23,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -215,13 +213,25 @@ public class Unseeable extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onDeath(PlayerDeathEvent event) {
-
+    public void onDrop(PlayerDropItemEvent event) {
+        if (currentGame != null && (currentGame.isSpectator(event.getPlayer()) || currentGame.isIngame(event.getPlayer()))) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
-
+        if (currentGame != null) {
+            if (event.getEntity() instanceof Player) {
+                if (currentGame.isIngame((Player) event.getEntity())) {
+                    if (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK && event.getCause() != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
+                        if (((Player) event.getEntity()).getHealth() - event.getFinalDamage() <= 0) {
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @EventHandler

@@ -588,4 +588,20 @@ public class GameInstance {
         powerups.add(powerupBase);
         return powerupBase;
     }
+
+    public boolean isIngame(Player _p) {
+        for (Player p : players) {
+            if (p.getUniqueId().toString().equalsIgnoreCase(_p.getUniqueId().toString()))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isSpectator(Player _p) {
+        for (Player p : spectators) {
+            if (p.getUniqueId().toString().equalsIgnoreCase(_p.getUniqueId().toString()))
+                return true;
+        }
+        return false;
+    }
 }
