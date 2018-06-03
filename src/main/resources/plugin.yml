@@ -1,11 +1,13 @@
 name: Unseeable
-version: 2.3-SNAPSHOT
+version: 2.5-SNAPSHOT
 main: nl.lucemans.unseeable.Unseeable
 author: Lucemans
 commands:
    unseeable:
      aliases: [us,unsee,uns]
      description: Unseeable main command
+     permission: unseeable.user
    unseeableadmin:
      aliases: [usa,unseeadmin,unsa]
      description: Unseeable main command
+     permission: unseeable.admin
