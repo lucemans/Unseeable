@@ -11,3 +11,10 @@ commands:
      aliases: [usa,unseeadmin,unsa]
      description: Unseeable main command
      permission: unseeable.admin
+ permissions:
+   unseeable.user:
+     default: true
+     description: Primary user permission for UnSeeable
+   unseeable.admin:
+     default: op
+     description: Admin permissions for UnSeeable
