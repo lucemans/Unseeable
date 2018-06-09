@@ -22,7 +22,7 @@ public class UnseeableCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0) {
             sender.sendMessage(Unseeable.parse("&7&m------------"));
-            sender.sendMessage(Unseeable.parse(Unseeable.NAME + " &rv1.0"));
+            sender.sendMessage(Unseeable.parse(Unseeable.NAME + " &rv" + Unseeable.instance.getDescription().getVersion()));
             sender.sendMessage(Unseeable.parse("&rCreated by &d&lLuc&r&lemans&r."));
             sender.sendMessage(Unseeable.parse("For a list of commands &5/us help"));
             return true;

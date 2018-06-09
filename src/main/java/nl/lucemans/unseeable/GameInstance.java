@@ -89,7 +89,8 @@ public class GameInstance {
                 StartTime = 30 * 20;
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (!players.contains(p))
-                        p.sendMessage(LanguageManager.get("lang.gamestarting", new String[]{m.name, players.size() + "", m.maxPlayers - players.size() + ""}));
+                        if (p.hasPermission("unseeable.user"))
+                            p.sendMessage(LanguageManager.get("lang.gamestarting", new String[]{m.name, players.size() + "", m.maxPlayers - players.size() + ""}));
                 }
             }
         }
@@ -120,9 +121,15 @@ public class GameInstance {
                         state = GameState.DISPLAY;
                         massSend(p.getName() + " has won!");
                         p.teleport(m.winnerSpawn.getLocation());
+                        p.sendMessage(LanguageManager.get("lang.gamewin", new String[]{kills.get(p.getUniqueId().toString()) + "", m.name, m.winner_amount + ""}));
+                        Unseeable.instance.econ.depositPlayer(p, m.winner_amount);
                         for (Player f : players) {
                             if (!p.getUniqueId().toString().equalsIgnoreCase(f.getUniqueId().toString()))
+                            {
                                 f.teleport(m.loserSpawn.getLocation());
+                                f.sendMessage(LanguageManager.get("lang.gametry", new String[]{kills.get(f.getUniqueId().toString()) + "", m.name, m.winner_amount + ""}));
+                                Unseeable.instance.econ.depositPlayer(f, m.participation_amount);
+                            }
                         }
                         StartTime = 10 * 20; // 10 seconds
                         break;

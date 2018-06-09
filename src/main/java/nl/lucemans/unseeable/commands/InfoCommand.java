@@ -12,6 +12,12 @@ import org.bukkit.entity.Player;
  */
 public class InfoCommand implements BaseCommand {
 
+    private Unseeable inst;
+
+    public InfoCommand() {
+        this.inst = Unseeable.instance;
+    }
+
     // /usa info <mapName>
     public void execute(Player p, String[] args) {
         if (args.length < 2) {
@@ -20,13 +26,19 @@ public class InfoCommand implements BaseCommand {
         }
 
         String mapName = args[1];
-        Map m = Unseeable.instance.findMap(mapName);
+        //Map m = Unseeable.instance.findMap(mapName);
+        Map m = null;
+        for (Map _m : Unseeable.maps) {
+            m = _m;
+        }
+        p.sendMessage("Size: " + Unseeable.maps.size());
+        p.sendMessage("Map: " + (m != null));
         if (m == null) {
             p.sendMessage(LanguageManager.get("lang.mapnotfound", new String[]{mapName}));
             return;
         }
 
-        sendMsg(p, "------MapStatus------");
+        sendMsg(p, "------MapStatus------ " + inst.random);
         sendMsg(p, "Name: " + m.name);
         sendMsg(p, "Kills required: " + m.killsRequired);
         sendMsg(p, "Min Players: " + m.minPlayers);

@@ -11,11 +11,19 @@ import org.bukkit.entity.Player;
  * See https://lucemans.nl
  */
 public class ListCommand implements BaseCommand {
+
+    private Unseeable inst;
+
+    public ListCommand() {
+        this.inst = Unseeable.instance;
+    }
+
     public void execute(Player p, String[] args) {
-        p.sendMessage(Unseeable.parse("&7&m---" + Unseeable.NAME + "&7&m---"));
-        if (Unseeable.instance.maps.size() == 0)
-            p.sendMessage(LanguageManager.get("lang.nomapsready", new String[]{}));
-        for (Map m : Unseeable.instance.maps) {
+        p.sendMessage(Unseeable.parse("&7&m---" + Unseeable.NAME + "&7&m--- " + inst.random));
+        //if (Unseeable.maps.size() == 0)
+        //    p.sendMessage(LanguageManager.get("lang.nomapsready", new String[]{}));
+        p.sendMessage("Size " + Unseeable.maps.size());
+        for (Map m : Unseeable.maps) {
             p.sendMessage(" " + (m.isSetup() ? ChatColor.GREEN : ChatColor.RED) + ChatColor.BOLD + m.name);
         }
     }

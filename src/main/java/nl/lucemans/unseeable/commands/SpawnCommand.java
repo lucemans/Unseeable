@@ -15,7 +15,7 @@ public class SpawnCommand implements BaseCommand {
 
     // /usa spawn <name> clear <spawn/powerup/firework>
     // /usa spawn <name> add <spawn/powerup/firework>
-    // /usa spawn <name> set <lose/win>
+    // /usa spawn <name> set <lose/win/spectate>
     public void execute(Player p, String[] args) {
         if (args.length < 4) {
             p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn <name> <add/set/clear> <spawn/powerup/lose/win>"}));
@@ -64,7 +64,7 @@ public class SpawnCommand implements BaseCommand {
                 m.spectatorSpawn = new SerializableLocation(p.getLocation());
                 p.sendMessage(LanguageManager.get("lang.spawnspectate", new String[]{m.name}));
             } else {
-                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <lose/win>"}));
+                p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " add <lose/win/spectate>"}));
             }
         } else
         if (mod.equalsIgnoreCase("clear")) {
@@ -86,7 +86,7 @@ public class SpawnCommand implements BaseCommand {
                 p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn " + m.name + " clear <spawn/powerup/firework>"}));
             }
         } else {
-            p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn "+m.name+" <add/set/clear> <spawn/powerup/lose/win>"}));
+            p.sendMessage(LanguageManager.get("lang.suggest", new String[]{"/usa spawn "+m.name+" <add/set/clear> <spawn/powerup/lose/win/spectate>"}));
         }
     }
 }

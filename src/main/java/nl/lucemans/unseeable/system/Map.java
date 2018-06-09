@@ -29,6 +29,9 @@ public class Map implements Serializable {
     public int speedBoost = 2;
     public int killsRequired = 15;
 
+    public int winner_amount = 100;
+    public int participation_amount = 10;
+
     public Map(String name, Location negMark, Location posMark, Integer minPlayers, Integer maxPlayers) {
         spawnPoints = new ArrayList<SerializableLocation>();
         powerups = new ArrayList<SerializableLocation>();

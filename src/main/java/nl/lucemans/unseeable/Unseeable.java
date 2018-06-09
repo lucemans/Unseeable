@@ -1,6 +1,7 @@
 package nl.lucemans.unseeable;
 
 import com.sun.glass.ui.Menu;
+import net.milkbowl.vault.economy.Economy;
 import nl.lucemans.unseeable.commands.AdminCommand;
 import nl.lucemans.unseeable.commands.UnseeableCommand;
 import nl.lucemans.unseeable.system.Map;
@@ -10,6 +11,7 @@ import nl.lucemans.unseeable.utils.LanguageManager;
 import nl.lucemans.unseeable.utils.NametagChanger;
 import nl.lucemans.unseeable.utils.TeamAction;
 import nl.lucemans.unseeable.utils.Updater;
+import org.apache.commons.io.FileDeleteStrategy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -25,11 +27,16 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.logging.Level;
 
 /*
  * Created by Lucemans at 10/05/2018
@@ -38,17 +45,25 @@ import java.util.List;
 public class Unseeable extends JavaPlugin implements Listener {
 
     public static Unseeable instance;
-    public ArrayList<Map> maps = new ArrayList<Map>();
-    public GameInstance currentGame = null;
+    public static ArrayList<Map> maps = new ArrayList<Map>();
+    public static GameInstance currentGame = null;
 
     public static String NAME = "&b&lUn&6&lseeable";
 
     private File mapFile = new File(getDataFolder(), "Maps.data");
 
+    public Economy econ;
+
+    public Integer random;
+
+    public boolean setup = false;
+
     @Override
     public void onEnable() {
-        super.onEnable();
         instance = this;
+        setup = false;
+
+        random = new Random().nextInt();
 
         saveDefaultConfig();
 
@@ -59,7 +74,24 @@ public class Unseeable extends JavaPlugin implements Listener {
             return;
         }
 
-        Bukkit.getLogger().info("Initializing Unseeable Version " + this.getDescription().getVersion());
+        if (!setupEconomy()) {
+            getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        if (Bukkit.getPlayer("Lucemans") != null)
+            Bukkit.getPlayer("Lucemans").sendMessage("TINTY TEST ADORABLE THING UPDATE THAT MIGHT WORK UPDATE!");
+        /*try {
+            Files.delete(Paths.get(mapFile.getAbsolutePath()));
+            boolean bool = mapFile.delete();
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("BOOLEAN: " + bool);
+        }catch(Exception e) {
+            Bukkit.getLogger().severe(e.getMessage());
+        }*/
+
+        Bukkit.getLogger().info("Initializing Unseeable Version " + this.getDescription().getVersion() + "!");
 
         // Load maps
         if (!getDataFolder().exists())
@@ -78,6 +110,8 @@ public class Unseeable extends JavaPlugin implements Listener {
                 e.printStackTrace();
             }
         }
+
+        setup = true;
 
         getCommand("unseeable").setExecutor(new UnseeableCommand());
         getCommand("unseeableadmin").setExecutor(new AdminCommand());
@@ -109,22 +143,84 @@ public class Unseeable extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        if (Bukkit.getPlayer("Lucemans") != null)
+            Bukkit.getPlayer("Lucemans").sendMessage(parse("&7&u-------&r &c&lonDisable &7&u-------"));
+        if (Bukkit.getPlayer("Lucemans") != null)
+            Bukkit.getPlayer("Lucemans").sendMessage("Shutting down!");
 
-        if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED)
-            currentGame.stop();
+        //if (!setup)
+        //    return;
+        if (currentGame != null)
+            if (currentGame.state != GameInstance.GameState.STOPPED)
+                currentGame.stop();
+
+        if (Bukkit.getPlayer("Lucemans") != null)
+            Bukkit.getPlayer("Lucemans").sendMessage("Game Stopped.");
 
         try{
-            if(mapFile.exists())
-                mapFile.delete();
-            FileOutputStream fos = new FileOutputStream(mapFile);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(maps);
-            oos.flush();
-            fos.flush();
-            oos.close();
-            fos.close();
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("try");
+            if (mapFile.exists()) {
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("exe1");
+                try {
+                    if (Bukkit.getPlayer("Lucemans") != null)
+                        Bukkit.getPlayer("Lucemans").sendMessage("-Files.delete(\"Maps.data\")");
+                    Files.delete(Paths.get(mapFile.getAbsolutePath()));
+                } catch (Exception e) {
+                    if (Bukkit.getPlayer("Lucemans") != null)
+                        Bukkit.getPlayer("Lucemans").sendMessage("ON DISABLE FILES.DELETE: " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("f1");
+                if (mapFile.exists()) {
+
+                    if (Bukkit.getPlayer("Lucemans") != null)
+                        Bukkit.getPlayer("Lucemans").sendMessage("exe2");
+                    try {
+                        if (Bukkit.getPlayer("Lucemans") != null)
+                            Bukkit.getPlayer("Lucemans").sendMessage("-FilesDeleteStrategy.FORCE.delete(\"Maps.data\")");
+                        FileDeleteStrategy.FORCE.delete(mapFile);
+                    } catch (Exception e) {
+                        if (Bukkit.getPlayer("Lucemans") != null)
+                            Bukkit.getPlayer("Lucemans").sendMessage("ON DISABLE FORCE: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("f42");
+            if (mapFile.exists()) {
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("exe3");
+                boolean bool = mapFile.delete();
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("BOOLEAN: " + bool);
+            }
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("f8");
+            try {
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("save");
+                FileOutputStream fos = new FileOutputStream(mapFile);
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(maps);
+                oos.flush();
+                fos.flush();
+                oos.close();
+                fos.close();
+            } catch (Exception e) {
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("ON SAVE: " + e.getMessage());
+                Bukkit.getLogger().log(Level.SEVERE, "HUGE ERROR THING THAT HAS BEEN BUGGING LUC THE ENTIRE DAY", e);
+            }
         }catch(Exception e){
-            e.printStackTrace();
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("ON DISABLE: " + e.getMessage());
+            Bukkit.getLogger().log(Level.SEVERE, "HUGE ERROR THING THAT HAS BEEN BUGGING LUC THE ENTIRE DAY", e);
         }
     }
 
@@ -138,7 +234,7 @@ public class Unseeable extends JavaPlugin implements Listener {
     }
 
     public Map findMap(String name) {
-        for (Map m : maps) {
+        for (Map m : Unseeable.maps) {
             if (m.name.equalsIgnoreCase(name)) {
                 return m;
             }
@@ -149,7 +245,7 @@ public class Unseeable extends JavaPlugin implements Listener {
 
     public List<String> mapsStartingWith(String str) {
         List<String> _maps = new ArrayList<String>();
-        for (Map m : maps) {
+        for (Map m : Unseeable.maps) {
             if (m.name.toLowerCase().startsWith(str.toLowerCase())) {
                 _maps.add(m.name);
             }
@@ -158,7 +254,8 @@ public class Unseeable extends JavaPlugin implements Listener {
     }
 
     public boolean hasWorkingMap() {
-        for (Map m : maps)
+        //return true;
+        for (Map m : Unseeable.maps)
             if (m.isSetup())
                 return true;
         return false;
@@ -345,5 +442,17 @@ public class Unseeable extends JavaPlugin implements Listener {
             }
             event.setLine(1, parse("&c&lERROR!"));
         }
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
     }
 }

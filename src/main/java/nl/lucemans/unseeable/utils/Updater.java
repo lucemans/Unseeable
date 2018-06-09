@@ -1,6 +1,7 @@
 package nl.lucemans.unseeable.utils;
 
 import nl.lucemans.unseeable.Unseeable;
+import org.apache.commons.io.FileDeleteStrategy;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
@@ -14,10 +15,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.logging.Level;
 
 /*
  * Created by Lucemans at 31/05/2018
@@ -30,6 +34,8 @@ public class Updater {
 
         // If existent, download!
         try {
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Checking for new update.");
             URL url = new URL("https://repo.lucemans.nl/nl/lucemans/Unseeable/maven-metadata.xml");
             BufferedReader in = new BufferedReader(new
                     InputStreamReader(url.openStream()));
@@ -46,6 +52,13 @@ public class Updater {
             total = total.replaceAll(".*<latest>(.*?)<\\/latest>.*", "$1");
             Bukkit.getLogger().info("LATEST VERSION: " + total);
             Bukkit.getLogger().info("CURRENT VERSION: " + plugin.getDescription().getVersion());
+
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("LATEST: " + total);
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("CURRENT: " + plugin.getDescription().getVersion());
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("CURRENT: " + plugin.getDescription().getVersion());
             if (!total.equalsIgnoreCase(plugin.getDescription().getVersion()) || force) {
                 return update(plugin, total);
             }
@@ -59,19 +72,47 @@ public class Updater {
     private static File update(Unseeable plugin, String version) {
         try {
             Bukkit.getLogger().info("Downloading latest version...");
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Downloading Latest");
             File pluginParent = plugin.getJar().getParentFile();
             String pluginName = plugin.getJar().getName();
-            plugin.getJar().delete();
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Delete....");
+
+            unload(plugin);
+            try {
+                FileDeleteStrategy.FORCE.delete(plugin.getJar());
+                //Files.delete(Paths.get(plugin.getJar().getAbsolutePath()));
+                //plugin.getJar().delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Bukkit.getLogger().log(Level.SEVERE, e.getMessage());
+
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("Delete ERROR.");
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage(e.getMessage());
+            }
+
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Delete Check.");
             File newPlugin = new File(pluginParent, "Unseeable-"+version+".jar");
 
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Connect");
             URL website = new URL("https://repo.lucemans.nl/nl/lucemans/Unseeable/"+version+"/Unseeable-"+version+".jar");
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
             FileOutputStream fos = new FileOutputStream(newPlugin);
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             Bukkit.getLogger().info("Update Completed Successfully!");
+
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Update complete.");
             return newPlugin;
         }catch(Exception e) {
-
+            Bukkit.getLogger().log(Level.SEVERE, "ERROR IN UPDATER (@615283) -> " + e.getMessage());
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("ERROR UPDATE -> " + e.getMessage());
         }
         return null;
     }

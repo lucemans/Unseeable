@@ -24,7 +24,7 @@ public class AdminCompleter extends LucTabCompleter {
                 suggest(args[2],  "add", "set", "clear");
             }
             if (args[0].equalsIgnoreCase("property")) {
-                suggest(args[2], "kills", "minPlayers", "maxPlayers", "minPowerups", "maxPowerups");
+                suggest(args[2], "kills", "minPlayers", "maxPlayers", "minPowerups", "maxPowerups", "speed");
             }
         }
         if (args.length == 4) {

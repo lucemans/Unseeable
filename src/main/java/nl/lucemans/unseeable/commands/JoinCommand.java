@@ -19,7 +19,7 @@ public class JoinCommand implements BaseCommand {
     // /us join <name>
     public void execute(final Player p, String[] args) {
 
-        if (Unseeable.instance.currentGame == null || Unseeable.instance.currentGame.state == GameInstance.GameState.STOPPED) {
+        if (Unseeable.currentGame == null || Unseeable.currentGame.state == GameInstance.GameState.STOPPED) {
             // if no game is active
             if (!Unseeable.instance.hasWorkingMap()) {
                 p.sendMessage(LanguageManager.get("lang.nomapsready", new String[]{}));
@@ -38,11 +38,11 @@ public class JoinCommand implements BaseCommand {
                     return;
                 }
 
-                Unseeable.instance.currentGame = new GameInstance(m);
+                Unseeable.currentGame = new GameInstance(m);
             } else {
                 NInventory linv = new NInventory(LanguageManager.get("lang.chooseamap", new String[]{"" + Unseeable.instance.maps.size()}), (int) Math.ceil(((double) Unseeable.instance.maps.size()) / 9.0) * 9, Unseeable.instance);
                 Integer i = 0;
-                for (final Map m : Unseeable.instance.maps) {
+                for (final Map m : Unseeable.maps) {
                     linv.setItem(NItem.create(Material.valueOf(LanguageManager.get("lang.mapicon", new String[]{}))).setName(LanguageManager.get("lang.maptitle", new String[]{m.name})).setAmount(m.maxPlayers).make(), i);
                     linv.setLClick(i, new Runnable() {
                         public void run() {
@@ -56,6 +56,6 @@ public class JoinCommand implements BaseCommand {
             }
         }
 
-        Unseeable.instance.currentGame.joinPlayer(p);
+        Unseeable.currentGame.joinPlayer(p);
     }
 }

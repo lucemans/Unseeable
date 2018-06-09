@@ -1,5 +1,5 @@
 name: Unseeable
-version: 2.5-SNAPSHOT
+version: 3.9-SNAPSHOT
 main: nl.lucemans.unseeable.Unseeable
 author: Lucemans
 commands:
