@@ -31,14 +31,14 @@ public class InfoCommand implements BaseCommand {
         for (Map _m : Unseeable.maps) {
             m = _m;
         }
-        p.sendMessage("Size: " + Unseeable.maps.size());
-        p.sendMessage("Map: " + (m != null));
+        //p.sendMessage("Size: " + Unseeable.maps.size());
+        //p.sendMessage("Map: " + (m != null));
         if (m == null) {
             p.sendMessage(LanguageManager.get("lang.mapnotfound", new String[]{mapName}));
             return;
         }
 
-        sendMsg(p, "------MapStatus------ " + inst.random);
+        sendMsg(p, "------MapStatus------ ");
         sendMsg(p, "Name: " + m.name);
         sendMsg(p, "Kills required: " + m.killsRequired);
         sendMsg(p, "Min Players: " + m.minPlayers);

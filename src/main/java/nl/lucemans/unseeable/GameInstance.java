@@ -1,8 +1,9 @@
 package nl.lucemans.unseeable;
 
 import nl.lucemans.NovaItems.NItem;
-import nl.lucemans.ninventory.NInventory;
 import nl.lucemans.unseeable.powerups.PowerupBase;
+import nl.lucemans.unseeable.powerups.PowerupTemplate;
+import nl.lucemans.unseeable.system.EffectBuffer;
 import nl.lucemans.unseeable.system.Map;
 import nl.lucemans.unseeable.utils.*;
 import org.bukkit.*;
@@ -10,14 +11,9 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 
 import java.util.*;
 
@@ -35,6 +31,7 @@ public class GameInstance {
     // Ingame stuff
     public ArrayList<Player> players;
     public ArrayList<Player> spectators;
+    public ArrayList<OfflinePlayer> transPlayers;
     public HashMap<String, Integer> kills;
     private HashMap<String, LScoreboard> scoreboards;
     public ArrayList<PowerupBase> powerups;
@@ -54,6 +51,9 @@ public class GameInstance {
     private HashMap<String, Boolean> lastAllowFlight;
     private HashMap<String, Boolean> lastFlight;
 
+    // Ingame Buffs
+    public ArrayList<EffectBuffer> buffs;
+
     // GameState stuff
     public Enum<GameState> state;
     private int StartTime = 0;
@@ -62,6 +62,7 @@ public class GameInstance {
         this.m = m;
         this.players = new ArrayList<Player>();
         this.spectators = new ArrayList<Player>();
+        this.transPlayers = new ArrayList<OfflinePlayer>();
         this.lastLocation = new HashMap<String, Location>();
         this.lastItems = new HashMap<String, HashMap<Integer, ItemStack>>();
         this.lastGamemode = new HashMap<String, GameMode>();
@@ -78,6 +79,7 @@ public class GameInstance {
         this.powerups = new ArrayList<PowerupBase>();
         this.lastFlight = new HashMap<String, Boolean>();
         this.lastAllowFlight = new HashMap<String, Boolean>();
+        this.buffs = new ArrayList<EffectBuffer>();
         this.state = GameState.COLLECTING;
     }
 
@@ -86,6 +88,8 @@ public class GameInstance {
             if (players.size() >= m.minPlayers) {
                 state = GameState.STARTING;
                 massSend(LanguageManager.get("lang.startin", new String[]{"30"}));
+                for (Player p : players)
+                    TitleManager.sendTitle(p, Unseeable.NAME, "Luc needs to make a description here...", 0, 40, 80);
                 StartTime = 30 * 20;
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (!players.contains(p))
@@ -99,7 +103,23 @@ public class GameInstance {
                 StartTime -= 1;
                 if (StartTime % 20 == 0) {
                     Integer seconds = StartTime / 20;
+                    if (seconds > 20 || (seconds >= 11 && seconds <= 15) || (seconds >= 6 && seconds <= 7) || (seconds >= 1 && seconds <= 3))
+                        for (Player p : players)
+                            TitleManager.sendActionBar(p, "Starting in: " + seconds);
                     if (seconds == 20 || seconds == 10 || seconds <= 5) {
+                        if (seconds <= 20 && seconds >= 16)
+                            for (Player p : players)
+                                TitleManager.sendActionBar(p, "Lets see how this one goes" + repeat("!", (seconds - 20) * -1));
+                        if (seconds <= 10 && seconds >= 8)
+                            for (Player p : players)
+                                TitleManager.sendActionBar(p, "Ready?" + repeat("?", (seconds - 8) * -1));
+                        if (seconds <= 5 && seconds >= 4)
+                            for (Player p : players)
+                                TitleManager.sendActionBar(p, "Set!");
+                        if (seconds == 0)
+                            for (Player p : players)
+                                TitleManager.sendActionBar(p, "GO!!!");
+
                         if (seconds > 5)
                             massSend(LanguageManager.get("lang.startin", new String[]{"" + seconds}));
                         else if (seconds == 0)
@@ -140,11 +160,46 @@ public class GameInstance {
                 if (!isInField(p.getLocation())) {
                     spawnPlayer(p);
                 }
+
+                ArrayList<EffectBuffer> buffers = getBuffs(p);
+                Integer visPrior = -1000;
+                Integer visState = 1;
+                for (EffectBuffer buf : buffers) {
+                    buf.ticksLeft = buf.ticksLeft - 1;
+                    if (buf.ticksLeft <= 0)
+                        buffs.remove(buf);
+                    if (buf.priority >= visPrior)
+                    {
+                        visPrior = buf.priority;
+                        visState = buf.effect;
+                    }
+                }
+
+                if (visState == 1) {
+                    // hide player
+                    //p.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    //p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 2, 1, false, false));
+                    for (Player _p : players)
+                        if (p != _p)
+                            HiderUtil.showPlayer(_p, p);
+                    TitleManager.sendActionBar(p, "&c&l----VISIBLE----");
+                }
+                else
+                {
+                    // show player
+                    //p.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    for (Player _p : players)
+                        if (p != _p)
+                            HiderUtil.hidePlayer(_p, p);
+                    TitleManager.sendActionBar(p, "&a&l)()()(HIDDEN)()()(");
+                }
             }
             // Apply Effects to Spectators
             for (Player p : spectators) {
-                p.removePotionEffect(PotionEffectType.INVISIBILITY);
-                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20*4, 1));
+                for (Player _p : players)
+                    HiderUtil.hidePlayer(_p, p);//_p.hidePlayer(Unseeable.instance, p);
+                //p.removePotionEffect(PotionEffectType.INVISIBILITY);
+                //p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20*4, 1));
             }
 
             /** SCOREBOARDS */
@@ -202,14 +257,19 @@ public class GameInstance {
             // Regulate Powerups
             if (m.powerups.size() > 0) {
                 // do we need powerups?
+
                 while (powerups.size() < m.minPowerups) {
-                    spawnPowerup();
+                    PowerupTemplate template = ConfigSettings.getTemplate(m);
+                    if (template != null)
+                        spawnPowerup(template);
                 }
                 // do we want powerups?
                 if (powerups.size() < m.maxPowerups || (m.maxPowerups == -1 && powerups.size() < m.powerups.size())) {
                     Random random = new Random();
                     if (random.nextInt(1000) == 1) {
-                        spawnPowerup();
+                        PowerupTemplate template = ConfigSettings.getTemplate(m);
+                        if (template != null)
+                            spawnPowerup(template);
                     }
                 }
 
@@ -308,7 +368,6 @@ public class GameInstance {
                 p.setSaturation(20f);
                 p.setFoodLevel(20);
                 if (kills.containsKey(p.getUniqueId().toString())) {
-                    p.setDisplayName(kills.get(p.getUniqueId().toString()) + " " + p.getName());
                     p.setLevel(kills.get(p.getUniqueId().toString()));
                     p.setExp((float) kills.get(p.getUniqueId().toString()) / m.killsRequired);
                 }
@@ -321,14 +380,18 @@ public class GameInstance {
     }
 
     public void spawnPlayer(Player p) {
-        p.teleport(m.spawnPoints.get(new Random().nextInt(m.spawnPoints.size())).getLocation());
+        p.teleport(m.spawnPoints.get(new Random().nextInt(m.spawnPoints.size())).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+
         p.setHealthScale(m.totalHearts);
         p.setHealth(m.totalHearts);
         p.setWalkSpeed(m.speedBoost * 0.2f);
         p.setSprinting(true);
-        if (!hasSword(p)) {
-            p.getInventory().setItem(0, NItem.create(Material.DIAMOND_SWORD).setName("&7Sword of &rVisibility").setEnchantment(Enchantment.DURABILITY, 2).make());
-        }
+
+        p.setGameMode(GameMode.ADVENTURE);
+        p.getInventory().clear();
+        p.getInventory().setHeldItemSlot(0);
+        p.getInventory().setItem(0, NItem.create(Material.DIAMOND_SWORD).setName("&7Sword of &rVisibility").setEnchantment(Enchantment.DURABILITY, 2).make());
+
         p.sendMessage(LanguageManager.get("lang.spawn", new String[]{}));
     }
 
@@ -363,6 +426,7 @@ public class GameInstance {
 
     public void joinSpectator(Player p) {
         joinGeneric(p);
+        p.teleport(m.spectatorSpawn.getLocation());
 
         //NametagChanger.changePlayerName(p, "0/" + m.killsRequired + " ", "", TeamAction.CREATE);
         p.setGameMode(GameMode.ADVENTURE);
@@ -372,8 +436,6 @@ public class GameInstance {
 
         p.setAllowFlight(true);
         p.setFlying(true);
-
-        p.teleport(m.spectatorSpawn.getLocation());
 
         spectators.add(p);
     }
@@ -407,8 +469,6 @@ public class GameInstance {
     }
 
     public void leaveGeneric(Player p) {
-        if (lastLocation.containsKey(p.getUniqueId().toString()))
-            p.teleport(lastLocation.get(p.getUniqueId().toString()));
         if (lastGamemode.containsKey(p.getUniqueId().toString()))
             p.setGameMode(lastGamemode.get(p.getUniqueId().toString()));
         if (lastItems.containsKey(p.getUniqueId().toString())) {
@@ -438,6 +498,8 @@ public class GameInstance {
             p.setFlying(lastFlight.get(p.getUniqueId().toString()));
         if (lastAllowFlight.containsKey(p.getUniqueId().toString()))
             p.setAllowFlight(lastAllowFlight.get(p.getUniqueId().toString()));
+        if (lastLocation.containsKey(p.getUniqueId().toString()))
+            p.teleport(lastLocation.get(p.getUniqueId().toString()));
     }
 
     public void leavePlayer(Player p) {
@@ -481,16 +543,15 @@ public class GameInstance {
     public void start() {
         StartTime = 0;
         for (Player p : players) {
+            Location loc = p.getLocation().clone();
+            p.teleport(m.spawnPoints.get(new Random().nextInt(m.spawnPoints.size())).getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             joinGeneric(p);
+            lastLocation.put(p.getUniqueId().toString(), loc);
 
             kills.put(p.getUniqueId().toString(), 0);
 
-            NametagChanger.changePlayerName(p, "0/" + m.killsRequired + " ", "", TeamAction.CREATE);
-            p.setGameMode(GameMode.ADVENTURE);
-            p.getInventory().clear();
-            p.getInventory().setHeldItemSlot(0);
-            p.getInventory().setItem(0, NItem.create(Material.DIAMOND_SWORD).setName("&7Sword of &rVisibility").setEnchantment(Enchantment.DURABILITY, 2).make());
             spawnPlayer(p);
+            NametagChanger.changePlayerName(p, "0/" + m.killsRequired + " ", "", TeamAction.CREATE);
         }
         state = GameState.INGAME;
         massSend(LanguageManager.get("lang.gamestart", new String[]{}));
@@ -499,6 +560,12 @@ public class GameInstance {
     public void stop() {
         state = GameState.STOPPED;
         massSend(LanguageManager.get("lang.stop", new String[]{}));
+        for (Player p : players)
+            for (Player _p : spectators)
+            {
+                HiderUtil.showPlayer(p, _p);
+                HiderUtil.showPlayer(_p, p);
+            }
         for (Player p : players) {
             leavePlayer(p);
         }
@@ -538,11 +605,14 @@ public class GameInstance {
     /* Events */
     public void moveInput(PlayerMoveEvent event) {
         if (state == GameState.INGAME) {
-            event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
+            //event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
             if (event.getPlayer().getItemInHand().getType().equals(Material.DIAMOND_SWORD)) {
-                event.getPlayer().removePotionEffect(PotionEffectType.INVISIBILITY);
+                removePriorityBuffer(event.getPlayer(), 0);
+                buffs.add(new EffectBuffer(event.getPlayer().getUniqueId(), 1, 0));
             } else if (event.getFrom().getX() != event.getTo().getX() || event.getFrom().getY() != event.getTo().getY() || event.getTo().getZ() != event.getFrom().getZ()) {
-                event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20, 10, false, false));
+                removePriorityBuffer(event.getPlayer(), 0);
+                buffs.add(new EffectBuffer(event.getPlayer().getUniqueId(), 0, 0));
+                //event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20, 10, false, false));
             }
             for (PowerupBase powerupBase : (ArrayList<PowerupBase>) powerups.clone()) {
                 powerupBase.userMove(event);
@@ -589,9 +659,9 @@ public class GameInstance {
         return empty;
     }
 
-    public PowerupBase spawnPowerup() {
+    public PowerupBase spawnPowerup(PowerupTemplate template) {
         Location loc = nextPowerup();
-        PowerupBase powerupBase = new PowerupBase(loc);
+        PowerupBase powerupBase = new PowerupBase(template, loc);
         powerups.add(powerupBase);
         return powerupBase;
     }
@@ -610,5 +680,26 @@ public class GameInstance {
                 return true;
         }
         return false;
+    }
+
+    public ArrayList<EffectBuffer> getBuffs(Player p) {
+        ArrayList<EffectBuffer> res = new ArrayList<>();
+        for (EffectBuffer buf : buffs)
+            if (buf.player.toString().equals(p.getUniqueId().toString()))
+                res.add(buf);
+        return res;
+    }
+
+    public void removePriorityBuffer(Player p, Integer priority) {
+        for (EffectBuffer buf : getBuffs(p))
+            if (buf.priority == priority)
+                buffs.remove(priority);
+    }
+
+    public String repeat(String str, Integer amount) {
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < amount; i++)
+            res.append(str);
+        return res.toString();
     }
 }

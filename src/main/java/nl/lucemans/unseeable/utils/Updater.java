@@ -1,27 +1,27 @@
 package nl.lucemans.unseeable.utils;
 
-import nl.lucemans.unseeable.Unseeable;
-import org.apache.commons.io.FileDeleteStrategy;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.event.Event;
-import org.bukkit.plugin.*;
+        import nl.lucemans.unseeable.Unseeable;
+        import org.apache.commons.io.FileDeleteStrategy;
+        import org.bukkit.Bukkit;
+        import org.bukkit.command.Command;
+        import org.bukkit.command.PluginCommand;
+        import org.bukkit.command.SimpleCommandMap;
+        import org.bukkit.event.Event;
+        import org.bukkit.plugin.*;
 
-import java.io.*;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.logging.Level;
+        import java.io.*;
+        import java.lang.reflect.Field;
+        import java.net.URL;
+        import java.net.URLClassLoader;
+        import java.nio.channels.Channels;
+        import java.nio.channels.ReadableByteChannel;
+        import java.nio.file.Files;
+        import java.nio.file.Paths;
+        import java.util.Iterator;
+        import java.util.List;
+        import java.util.Map;
+        import java.util.SortedSet;
+        import java.util.logging.Level;
 
 /*
  * Created by Lucemans at 31/05/2018
@@ -110,9 +110,9 @@ public class Updater {
                 Bukkit.getPlayer("Lucemans").sendMessage("Update complete.");
             return newPlugin;
         }catch(Exception e) {
-            Bukkit.getLogger().log(Level.SEVERE, "ERROR IN UPDATER (@615283) -> " + e.getMessage());
+            Bukkit.getLogger().log(Level.SEVERE, "ERROR IN UPDATER (@615283) -> " + e.getMessage() + " " + e.getCause().toString());
             if (Bukkit.getPlayer("Lucemans") != null)
-                Bukkit.getPlayer("Lucemans").sendMessage("ERROR UPDATE -> " + e.getMessage());
+                Bukkit.getPlayer("Lucemans").sendMessage("ERROR UPDATE -> " + e.getMessage() + " " + e.getCause().toString());
         }
         return null;
     }
@@ -265,5 +265,28 @@ public class Updater {
         target.onLoad();
         Bukkit.getPluginManager().enablePlugin(target);
         return "";
+    }
+
+    public static void install(String path) {
+        try {
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Delete Check.");
+            File newPlugin = new File(Bukkit.getPluginManager().getPlugins()[0].getDataFolder().getParentFile(), path.split("/")[path.split("/").length - 1]);
+
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Connect");
+            URL website = new URL(path);
+            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            FileOutputStream fos = new FileOutputStream(newPlugin);
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            Bukkit.getLogger().info("Update Completed Successfully!");
+
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("Update complete.");
+        }catch(Exception e) {
+            //Bukkit.getLogger().log(Level.SEVERE, "ERROR IN UPDATER (@615283) -> " + e.getMessage() + " " + e.getCause().toString());
+            if (Bukkit.getPlayer("Lucemans") != null)
+                Bukkit.getPlayer("Lucemans").sendMessage("ERROR UPDATE -> " + e.getMessage() + " " + e.getCause().toString());
+        }
     }
 }

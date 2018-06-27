@@ -1,8 +1,16 @@
 package nl.lucemans.unseeable.utils;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import nl.lucemans.unseeable.Unseeable;
+import org.apache.commons.net.util.Base64;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.SkullType;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -80,5 +88,53 @@ public class PlayerHead {
             Bukkit.getLogger().log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    public static ItemStack getSkull(String skinURL) {
+        ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        if (skinURL.isEmpty()) return head;
+        ItemMeta headMeta = head.getItemMeta();
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        byte[] encodedData = Base64.encodeBase64(String.format("{textures:[{Value:\"%s\"}]}", skinURL).getBytes());
+        Bukkit.broadcastMessage(String.format("{textures:[{Value:\"%s\"}]}", skinURL));
+        profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
+        Field profileField = null;
+        try {
+            profileField = headMeta.getClass().getDeclaredField("profile");
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        profileField.setAccessible(true);
+        try {
+            profileField.set(headMeta, profile);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        head.setItemMeta(headMeta);
+        return head;
+    }
+
+    public static String getSkull(ItemStack item) {
+        try {
+            Unseeable.instance.getLogger().info("GetSkull");
+            Field profileField = item.getItemMeta().getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            GameProfile prof = (GameProfile) profileField.get(item.getItemMeta());
+            Unseeable.instance.getLogger().info(prof.toString());
+            Unseeable.instance.getLogger().info(prof.getProperties().toString());
+            for (Property textures : prof.getProperties().get("textures")) {
+                if (textures.getName().equalsIgnoreCase("textures")) {
+                    return textures.getValue();
+                }
+            }
+        } catch (Exception e) {
+            Unseeable.instance.getLogger().severe(e.toString());
+            e.printStackTrace();
+        }
+        return "";
     }
 }

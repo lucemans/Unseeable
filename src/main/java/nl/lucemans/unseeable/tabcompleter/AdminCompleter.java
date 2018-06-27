@@ -12,10 +12,10 @@ public class AdminCompleter extends LucTabCompleter {
 
     public void complete(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 1) {
-            suggest(args[0],"setup", "spawn", "info", "property", "stop", "start", "remove", "help");
+            suggest(args[0],"setup", "spawn", "info", "property", "stop", "start", "remove", "edit", "help");
         }
         if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("spawn") || args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("property") || args[0].equalsIgnoreCase("remove")) {
+            if (args[0].equalsIgnoreCase("spawn") || args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("property") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("edit")) {
                 res.addAll(Unseeable.instance.mapsStartingWith(args[1]));
             }
         }

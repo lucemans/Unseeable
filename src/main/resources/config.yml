@@ -43,9 +43,23 @@ lang:
   gamestarting: "%prefix $1 A game is starting in map '$1' with $2 players and $3 places left. Do &d/us join &rto join."
   gamewin: "%prefix You won with $1 kills in map $2 and you won $3 moneyz."
   gametry: "%prefix You participated with $1 kills in map $2 and Lewis da god thinks you deserve $3 moneyz for trying."
+  killed: "%prefix You got killed by $1"
+  kill: "%prefix Congratz you killed $1 who has $2 kills and you now have $3 kills out of the $4"
+  killbroadcast: "%prefix $1 killed $2 and now has $3 out of $4 kills"
+  killtitle: "KILL"
+  killsubtitle: "KILLSUBTITLE"
+  deathtitle: "DEATH"
+  deathsubtitle: "DEATHSUBTITLE"
   chooseamap: "Choose a map ($1)"
   mapicon: "WOOL"
   maptitle: "&a&l$1"
   noint: "%prefix '$1' is not a valid Number"
   propertyupdate: "%prefix '$1' updated to '$2' for '$3'."
   sign: "&r[&b&lUn&6&lseeable&r]"
+allowed_commands:
+  - usa
+  - us
+  - msg
+  - reply
+  - r
+  - tell

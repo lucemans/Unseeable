@@ -19,10 +19,10 @@ public class ListCommand implements BaseCommand {
     }
 
     public void execute(Player p, String[] args) {
-        p.sendMessage(Unseeable.parse("&7&m---" + Unseeable.NAME + "&7&m--- " + inst.random));
+        p.sendMessage(Unseeable.parse("&7&m---" + Unseeable.NAME + "&7&m--- "));
         //if (Unseeable.maps.size() == 0)
         //    p.sendMessage(LanguageManager.get("lang.nomapsready", new String[]{}));
-        p.sendMessage("Size " + Unseeable.maps.size());
+        //p.sendMessage("Size " + Unseeable.maps.size());
         for (Map m : Unseeable.maps) {
             p.sendMessage(" " + (m.isSetup() ? ChatColor.GREEN : ChatColor.RED) + ChatColor.BOLD + m.name);
         }

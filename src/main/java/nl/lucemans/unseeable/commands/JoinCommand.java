@@ -47,6 +47,9 @@ public class JoinCommand implements BaseCommand {
                     linv.setLClick(i, new Runnable() {
                         public void run() {
                             p.performCommand("us join " + m.name);
+                            if (Unseeable.currentGame != null)
+                                if (Unseeable.currentGame.players.contains(p))
+                                    p.closeInventory();
                         }
                     });
                     i++;

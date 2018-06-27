@@ -1,5 +1,6 @@
 name: Unseeable
-version: 3.9-SNAPSHOT
+version: 4.5-SNAPSHOT
+description: That one plugin where people just dissapear into thin air.
 main: nl.lucemans.unseeable.Unseeable
 author: Lucemans
 commands:
@@ -14,7 +15,7 @@ commands:
 permissions:
    unseeable.user:
      default: true
-     description: Primary user permission for UnSeeable
+     description: Primary user permission for Unseeable
    unseeable.admin:
      default: op
-     description: Admin permissions for UnSeeable
+     description: Admin permissions for Unseeable
