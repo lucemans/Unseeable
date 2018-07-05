@@ -6,7 +6,7 @@
 
     <groupId>nl.lucemans</groupId>
     <artifactId>Unseeable</artifactId>
-    <version>4.7-SNAPSHOT</version>
+    <version>4.8-SNAPSHOT</version>
 
     <build>
         <plugins>
@@ -137,7 +137,7 @@
             <artifactId>Minecraft</artifactId>
             <version>2.13-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>C:/Users/i/Desktop/Prototyper/spigot.jar</systemPath>
+            <systemPath>X:/Downloads/spigot-1.12.2.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

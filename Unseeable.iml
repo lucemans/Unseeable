@@ -32,7 +32,7 @@
     <orderEntry type="module-library">
       <library name="Maven: net.minecraft:Minecraft:2.13-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$USER_HOME$/Desktop/Prototyper/spigot.jar!/" />
+          <root url="jar://X:/Downloads/spigot-1.12.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

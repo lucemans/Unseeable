@@ -1,5 +1,6 @@
 package nl.lucemans.unseeable.commands;
 
+import nl.lucemans.NovaItems.NBlockColor;
 import nl.lucemans.NovaItems.NItem;
 import nl.lucemans.ninventory.NInventory;
 import nl.lucemans.unseeable.GameInstance;
@@ -9,6 +10,7 @@ import nl.lucemans.unseeable.utils.LanguageManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 /*
  * Created by Lucemans at 20/05/2018
@@ -59,6 +61,20 @@ public class JoinCommand implements BaseCommand {
             }
         }
 
-        Unseeable.currentGame.joinPlayer(p);
+        if (Unseeable.currentGame.isIngame(p)) {
+            NInventory ninv = new NInventory("In Queue: " + Unseeable.currentGame.m.name, 9, Unseeable.instance);
+            ninv.setItem(NItem.create(Material.MAP).setName("&6Map: &r" + Unseeable.currentGame.m.name).make(), 4);
+            ItemStack item = NItem.create(Material.STAINED_GLASS).setColor(NBlockColor.RED).setName("&c&lLeave Queue").make();
+            ninv.setItem(item, 0);
+            ninv.setItem(item, 1);
+            ninv.setItem(item, 2);
+            ninv.setItem(item, 0);
+            ninv.setItem(item, 6);
+            ninv.setItem(item, 7);
+            ninv.setItem(item, 8);
+            p.openInventory(ninv.getInv());
+        }
+        else
+            Unseeable.currentGame.joinPlayer(p);
     }
 }

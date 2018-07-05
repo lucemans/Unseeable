@@ -65,7 +65,7 @@ lang:
   timed_mode_subtitle: "&7Enabled by $1"
   scoreboard_entry: " &6$1 &r$2"
   timed_mode_toggle_on: "&c&lEVERYBODY VISIBLE"
-  timed_mode_toggle_off: ""
+  timed_mode_toggle_off: "&a&lNormal Mode"
 allowed_commands:
   - usa
   - us

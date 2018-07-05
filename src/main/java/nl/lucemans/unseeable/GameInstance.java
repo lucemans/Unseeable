@@ -121,7 +121,7 @@ public class GameInstance {
                         for (Player p : players)
                         {
                             if (!lastHints.containsKey(p.getUniqueId().toString()))
-                                lastHints.put(p.getUniqueId().toString(), Unseeable.instance.getConfig().getList("hints").get(new Random().nextInt(Unseeable.instance.getConfig().getList("hints").size()));
+                                lastHints.put(p.getUniqueId().toString(), ((List<String>) Unseeable.instance.getConfig().getList("hints")).get(new Random().nextInt(Unseeable.instance.getConfig().getList("hints").size())));
 
                             TitleManager.sendActionBar(p, lastHints.get(p.getUniqueId().toString()) + repeat("!", (seconds - 20) * -1));
                         }
@@ -234,6 +234,22 @@ public class GameInstance {
                     pvp_timer = Stopwatch.createStarted();
                     pvp_enabled = !pvp_enabled;
                     base = (pvp_enabled ? ConfigSettings.millToFight : ConfigSettings.millToSwitch);
+                    if (pvp_enabled)
+                        for (Player p : players)
+                            TitleManager.sendTitle(p,
+                                    LanguageManager.get("lang.timed_mode_toggle_on", new String[]{}),
+                                    "",
+                                    0,
+                                    30,
+                                    10);
+                    else
+                        for (Player p : players)
+                            TitleManager.sendTitle(p,
+                                    LanguageManager.get("lang.timed_mode_toggle_off", new String[]{}),
+                                    "",
+                                    0,
+                                    30,
+                                    10);
                 }
             }
 

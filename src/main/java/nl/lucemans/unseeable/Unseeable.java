@@ -25,6 +25,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
@@ -600,6 +601,19 @@ public class Unseeable extends JavaPlugin implements Listener {
             for (PowerupBase b : currentGame.powerups) {
                 b.onInteract(event);
             }
+    }
+
+    @EventHandler
+    public void onDamageEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player) {
+            Player p = (Player) event.getDamager();
+            if (currentGame != null && currentGame.state != GameInstance.GameState.STOPPED)
+            {
+                if (currentGame.isIngame(p)) {
+                    event.setCancelled(true);
+                }
+            }
+        }
     }
 
     public boolean isTimed() {
