@@ -17,6 +17,9 @@ public class ConfigSettings {
     public static ArrayList<String> allowedCommands;
     public static ArrayList<PowerupTemplate> powerupTemplates;
 
+    public static Integer millToSwitch = 10000;
+    public static Integer millToFight = 15000;
+
     protected static void loadConfig(Unseeable inst) {
         allowedCommands = new ArrayList<String>((List<String>) inst.getConfig().getList("allowed_commands"));
     }

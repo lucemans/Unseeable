@@ -19,6 +19,11 @@ public class LeaveCommand implements BaseCommand {
                     Unseeable.instance.currentGame.leavePlayer(p);
                     p.sendMessage(LanguageManager.get("lang.leave", new String[]{}));
                 }
+                if (Unseeable.instance.currentGame.spectators.contains(p)) {
+                    Unseeable.instance.currentGame.spectators.remove(p);
+                    Unseeable.instance.currentGame.leaveSpectator(p);
+                    p.sendMessage(LanguageManager.get("lang.leave", new String[]{}));
+                }
             }
         }
     }

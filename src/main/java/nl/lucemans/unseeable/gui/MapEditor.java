@@ -1,5 +1,8 @@
 package nl.lucemans.unseeable.gui;
 
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
+import com.sk89q.worldedit.bukkit.selections.Selection;
 import nl.lucemans.NovaItems.NItem;
 import nl.lucemans.ninventory.NInventory;
 import nl.lucemans.unseeable.ConfigSettings;
@@ -7,7 +10,10 @@ import nl.lucemans.unseeable.Unseeable;
 import nl.lucemans.unseeable.powerups.PowerupTemplate;
 import nl.lucemans.unseeable.system.Map;
 import nl.lucemans.unseeable.system.Map2;
+import nl.lucemans.unseeable.system.MassLocation;
+import nl.lucemans.unseeable.utils.LanguageManager;
 import nl.lucemans.unseeable.utils.SerializableLocation;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -198,9 +204,55 @@ public class MapEditor {
                 openPowerupToggle(p, m);
             }
         });
+        i++;
+        desc.clear();
+        desc.add("&r");
+        desc.add("&7Redefine the region");
+        desc.add("&7of the map.");
+        desc.add("");
+        desc.add("&rLeft Click to redefine");
+        ninv.setItem(NItem.create(Material.WOOD_AXE).setName("&rRedefine Region").setDescription(desc).make(), i);
+        ninv.setLClick(i, new Runnable() {
+            @Override
+            public void run() {
+                // fetch both points, write them.
+                WorldEditPlugin plug = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
+                Selection sel = plug.getSelection(p);
+                if (sel == null) {
+                    p.sendMessage(LanguageManager.get("lang.selectwe", new String[]{}));
+                    return;
+                }
+
+                if (!(sel instanceof CuboidSelection)) {
+                    p.sendMessage(LanguageManager.get("lang.cuboidwe", new String[]{}));
+                    return;
+                }
+
+                m.negMark = new SerializableLocation(sel.getMinimumPoint());
+                m.posMark = new SerializableLocation(sel.getMaximumPoint());
+                p.sendMessage("Successfully redefined the area!");
+                p.closeInventory();
+            }
+        });
+        i++;
+        desc.clear();
+        desc.add("&r");
+        desc.add("&7Mass add points");
+        desc.add("&7Diamond Block = Spawn Point.");
+        desc.add("&7Redstone Block = Powerup Point.");
+        desc.add("");
+        desc.add("&rLeft Click to start");
+        ninv.setItem(NItem.create(Material.REDSTONE).setName("&rMass add Points").setDescription(desc).make(), i);
+        ninv.setLClick(i, new Runnable() {
+            @Override
+            public void run() {
+                p.closeInventory();
+                new MassLocation(p, m);
+            }
+        });
 
         ninv.setItem(NItem.create(Material.BARRIER).setName("&c&l<- Return").setDescription("&r", "&7Click to return to the previous menu.").make(), ninv.getInv().getSize() - 1);
-        ninv.setLClick(ninv.getInv().getSize(), new Runnable() {
+        ninv.setLClick(ninv.getInv().getSize()-1, new Runnable() {
             @Override
             public void run() {
                 openMaps(p);
@@ -277,7 +329,7 @@ public class MapEditor {
         });
 
         ninv.setItem(NItem.create(Material.BARRIER).setName("&c&l<- Return").setDescription("&r", "&7Click to return to the previous menu.").make(), ninv.getInv().getSize() - 1);
-        ninv.setLClick(ninv.getInv().getSize(), new Runnable() {
+        ninv.setLClick(ninv.getInv().getSize() - 1, new Runnable() {
             @Override
             public void run() {
                 openMap(p, m);

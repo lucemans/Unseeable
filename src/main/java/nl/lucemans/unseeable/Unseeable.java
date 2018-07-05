@@ -1,6 +1,7 @@
 package nl.lucemans.unseeable;
 
 import net.milkbowl.vault.economy.Economy;
+import nl.lucemans.ninventory.NInventory;
 import nl.lucemans.unseeable.commands.AdminCommand;
 import nl.lucemans.unseeable.commands.UnseeableCommand;
 import nl.lucemans.unseeable.gui.SpectatorGui;
@@ -33,6 +34,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -59,6 +61,8 @@ public class Unseeable extends JavaPlugin implements Listener {
     public Economy econ;
 
     public boolean setup = false;
+
+    private boolean timedMode = false;
 
     @Override
     public void onEnable() {
@@ -212,6 +216,16 @@ public class Unseeable extends JavaPlugin implements Listener {
             Bukkit.getPlayer("Lucemans").sendMessage(parse("&7&u-------&r &c&lonDisable &7&u-------"));
         if (Bukkit.getPlayer("Lucemans") != null)
             Bukkit.getPlayer("Lucemans").sendMessage("Shutting down!");
+
+        if (Bukkit.getPlayer("Lucemans") != null)
+            Bukkit.getPlayer("Lucemans").sendMessage("Deleting all inventories");
+
+
+        Class c = NInventory.class;
+        for (Method m : c.getDeclaredMethods()) {
+            Bukkit.getLogger().info("Method " + m.getName());
+        }
+        //NInventory.destroyAll();
 
         //if (!setup)
         //    return;
@@ -451,6 +465,7 @@ public class Unseeable extends JavaPlugin implements Listener {
                                 currentGame.spawnPlayer((Player) event.getEntity());
                                 event.setCancelled(true);
                                 event.setDamage(0.0);
+                                currentGame.kills.put(event.getDamager().getUniqueId().toString(), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + 1);
                                 event.getEntity().sendMessage(LanguageManager.get("lang.killed", new String[]{event.getDamager().getName(), currentGame.kills.get(event.getEntity().getUniqueId().toString()) + "", currentGame.kills.get(event.getDamager().getUniqueId().toString()) + "", currentGame.m.killsRequired + ""}));
                                 event.getDamager().sendMessage(LanguageManager.get("lang.kill", new String[]{event.getEntity().getName(), currentGame.kills.get(event.getEntity().getUniqueId().toString()) + "", currentGame.kills.get(event.getDamager().getUniqueId().toString()) + "", currentGame.m.killsRequired + ""}));
                                 for (Player p : currentGame.players) {
@@ -463,7 +478,6 @@ public class Unseeable extends JavaPlugin implements Listener {
                                 /** TITLES */
                                 //TODO: TITLE
 
-                                currentGame.kills.put(event.getDamager().getUniqueId().toString(), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + 1);
                                 NametagChanger.changePlayerName(((Player) event.getDamager()), currentGame.kills.get(event.getDamager().getUniqueId().toString()) + "/"+currentGame.m.killsRequired+" ", "", TeamAction.CREATE);
                             }
                             else
@@ -579,12 +593,36 @@ public class Unseeable extends JavaPlugin implements Listener {
                 b.onInteract(event);
             }
     }
+
     @EventHandler
     public void onInteract(PlayerInteractAtEntityEvent event) {
         if (currentGame != null)
             for (PowerupBase b : currentGame.powerups) {
                 b.onInteract(event);
             }
+    }
+
+    public boolean isTimed() {
+        return timedMode;
+    }
+
+    public void toggleTimedMode(Player _p) {
+        timedMode = !timedMode;
+        if (timedMode)
+            if (currentGame != null)
+                if (currentGame.state != GameInstance.GameState.STOPPED)
+                {
+                    currentGame.pvp_enabled = false;
+                    currentGame.pvp_timer = null;// default
+                    for (Player p : currentGame.players) {
+                        TitleManager.sendTitle(p, LanguageManager.get("lang.timed_mode_title", new String[]{}), LanguageManager.get("lang.timed_mode_subtitle", new String[]{_p.getName()}), 0, 20, 10);
+                        //p.playSound();
+                    }
+                    for (Player p : currentGame.spectators) {
+                        TitleManager.sendTitle(p, LanguageManager.get("lang.timed_mode_title", new String[]{}), LanguageManager.get("lang.timed_mode_subtitle", new String[]{_p.getName()}), 0, 20, 10);
+                        //p.playSound();
+                    }
+                }
     }
 
     private boolean setupEconomy() {

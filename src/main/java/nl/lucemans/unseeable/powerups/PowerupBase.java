@@ -31,7 +31,7 @@ public class PowerupBase {
     public PowerupTemplate template;
 
     public PowerupBase(PowerupTemplate template, Location location) {
-        entity = (ArmorStand) location.getWorld().spawnEntity(location.clone().subtract(0,0.25, 0), EntityType.ARMOR_STAND);
+        entity = (ArmorStand) location.getWorld().spawnEntity(location.clone().subtract(0,0.50, 0), EntityType.ARMOR_STAND);
         this.location = location;
 
         this.template = template;
@@ -48,26 +48,6 @@ public class PowerupBase {
         n.setYaw(n.getYaw() + 2f);
         entity.teleport(n, PlayerTeleportEvent.TeleportCause.UNKNOWN);
     }
-        //p.sendMessage("POWER UP RECIEVED");
-        //TODO:
-        /*if (type == PowerType.VISIBILITY_I) {
-            for (Player pl : Unseeable.instance.currentGame.players) {
-                if (p == pl)
-                    continue;
-                pl.removePotionEffect(PotionEffectType.GLOWING);
-                pl.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 20 * 5, 1));
-            }
-        }
-        if (type == PowerType.HEALTH_I) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 20*10, 10));
-        }
-        if (type == PowerType.HEALTH_II) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 20*10, 10));
-        }
-        if (type == PowerType.DAMAGE_I) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20*10, 10));
-            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20*10, 10));
-        }*/
 
     public void userMove(PlayerMoveEvent event) {
         if (event.getTo().getWorld().getName().equalsIgnoreCase(entity.getLocation().getWorld().getName())) {

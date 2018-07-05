@@ -20,27 +20,40 @@ import java.util.UUID;
 
 public class SpectatorGui {
 
-    public static void openGui(Player p) {
-        NInventory ninv = new NInventory("Spectator Menu (" + Unseeable.currentGame.players.size() + ")", (int) Math.ceil(Unseeable.currentGame.players.size() / 9.0) * 9, Unseeable.instance);
+    public static void openGui(final Player p) {
+        final NInventory ninv = new NInventory("Spectator Menu (" + Unseeable.currentGame.players.size() + ")", (int) Math.ceil(Unseeable.currentGame.players.size() / 9.0) * 9, Unseeable.instance);
 
-        int i = 0;
-        // Sort the list
-        java.util.Map<String, Integer> r = MapUtil.sortByComparator((HashMap<String, Integer>) Unseeable.currentGame.kills.clone(), false);
+        ninv.setUpdate(new Runnable() {
+            @Override
+            public void run() {
+                int i = 0;
+                // Sort the list
+                java.util.Map<String, Integer> r = MapUtil.sortByComparator((HashMap<String, Integer>) Unseeable.currentGame.kills.clone(), false);
 
 
                 for (String str : r.keySet()) {
-                    OfflinePlayer ofp = Bukkit.getOfflinePlayer(UUID.fromString(str));
+                    final OfflinePlayer ofp = Bukkit.getOfflinePlayer(UUID.fromString(str));
                     NItem item = NItem.create(Material.SKULL_ITEM);
                     ItemStack prep = item.make();
                     SkullMeta meta = (SkullMeta) prep.getItemMeta();
                     meta.setOwningPlayer(ofp);
                     item.setMeta(meta);
                     item.setDurability((short) 3);
+                    item.setName((i == 0 ? "&b" : "") + ofp.getName());
+                    item.setDescription("&r", "&rPlace: " + (i == 0 ? "&a" : "&e") + "#" + (i+1),"&rKills: &b" + Unseeable.instance.currentGame.kills.get(str), "", "&rClick to &3&lTELEPORT&r.");
                     ninv.setItem(item.make(), i);
+                    ninv.setLClick(i, new Runnable() {
+                        @Override
+                        public void run() {
+                            p.teleport(((Player) ofp).getLocation());
+                        }
+                    });
                     //lscore.content.add(Unseeable.parse(/*" &c" + place + "&6. &r" + ofp.getName() + " &5: &6" + r.get(str)*/ " &r" + r.get(str) + " " + (place == 1 ? "&6" : place == 2 ? "&a" : "&b") + ofp.getName()));
                     //place++;
                     i++;
                 }
+            }
+        });
 
         p.openInventory(ninv.getInv());
     }

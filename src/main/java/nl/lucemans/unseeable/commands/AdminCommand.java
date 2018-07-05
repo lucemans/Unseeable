@@ -25,6 +25,7 @@ public class AdminCommand implements CommandExecutor {
     private ForceStartCommand forceStartCommand = new ForceStartCommand();
     private PropertyCommand propertyCommand = new PropertyCommand();
     private EditCommand editCommand = new EditCommand();
+    private TimedCommand timedCommand = new TimedCommand();
 
     // -/usa setup <name> <minPlayers> <maxPlayers>
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
@@ -121,6 +122,10 @@ public class AdminCommand implements CommandExecutor {
         }
         if (args[0].equalsIgnoreCase("edit")) {
             editCommand.execute(p, args);
+            return true;
+        }
+        if (args[0].equalsIgnoreCase("timed")) {
+            timedCommand.execute(p, args);
             return true;
         }
         if (args[0].equalsIgnoreCase("help")) {

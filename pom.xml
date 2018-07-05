@@ -6,7 +6,7 @@
 
     <groupId>nl.lucemans</groupId>
     <artifactId>Unseeable</artifactId>
-    <version>4.5-SNAPSHOT</version>
+    <version>4.7-SNAPSHOT</version>
 
     <build>
         <plugins>
@@ -96,12 +96,12 @@
         <dependency>
             <groupId>nl.lucemans</groupId>
             <artifactId>NovaItems</artifactId>
-            <version>1.5-SNAPSHOT</version>
+            <version>1.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>nl.lucemans</groupId>
             <artifactId>NovaInventory</artifactId>
-            <version>2.2-SNAPSHOT</version>
+            <version>2.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>

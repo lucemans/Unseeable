@@ -45,6 +45,24 @@ public class PropertyCommand implements BaseCommand {
             }
             p.sendMessage(LanguageManager.get("lang.propertyupdate", new String[]{property, m.minPowerups + "", m.name}));
         }
+        if (property.equalsIgnoreCase("minPlayers")) {
+            try {
+                m.minPlayers = Integer.parseInt(value);
+            }catch (Exception e) {
+                p.sendMessage(LanguageManager.get("lang.notint", new String[]{}));
+                return;
+            }
+            p.sendMessage(LanguageManager.get("lang.propertyupdate", new String[]{property, m.minPlayers + "", m.name}));
+        }
+        if (property.equalsIgnoreCase("maxPlayers")) {
+            try {
+                m.maxPlayers = Integer.parseInt(value);
+            }catch (Exception e) {
+                p.sendMessage(LanguageManager.get("lang.notint", new String[]{}));
+                return;
+            }
+            p.sendMessage(LanguageManager.get("lang.propertyupdate", new String[]{property, m.maxPlayers + "", m.name}));
+        }
         if (property.equalsIgnoreCase("minPowerups")) {
             try {
                 m.minPowerups = Integer.parseInt(value);
@@ -61,7 +79,12 @@ public class PropertyCommand implements BaseCommand {
                 p.sendMessage(LanguageManager.get("lang.notint", new String[]{}));
                 return;
             }
-            p.sendMessage(LanguageManager.get("lang.propertyupdate", new String[]{property, m.minPowerups + "", m.name}));
+            p.sendMessage(LanguageManager.get("lang.propertyupdate", new String[]{property, m.maxPowerups + "", m.name}));
+        }
+        if (property.equalsIgnoreCase("name")) {
+            String nameBef = m.name;
+            m.name = value;
+            p.sendMessage(LanguageManager.get("lang.propertyupdate", new String[]{property, m.name + "", nameBef}));
         }
     }
 }

@@ -1,11 +1,13 @@
 package nl.lucemans.unseeable;
 
+import com.google.common.base.Stopwatch;
 import nl.lucemans.NovaItems.NItem;
 import nl.lucemans.unseeable.powerups.PowerupBase;
 import nl.lucemans.unseeable.powerups.PowerupTemplate;
 import nl.lucemans.unseeable.system.EffectBuffer;
 import nl.lucemans.unseeable.system.Map;
 import nl.lucemans.unseeable.utils.*;
+import org.apache.commons.lang3.time.StopWatch;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -16,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /*
  * Created by Lucemans at 10/05/2018
@@ -51,12 +54,19 @@ public class GameInstance {
     private HashMap<String, Boolean> lastAllowFlight;
     private HashMap<String, Boolean> lastFlight;
 
+    // Temp stuff
+    private HashMap<String, String> lastHints;
+
     // Ingame Buffs
     public ArrayList<EffectBuffer> buffs;
 
     // GameState stuff
     public Enum<GameState> state;
     private int StartTime = 0;
+
+    // TimedMode
+    public Stopwatch pvp_timer;
+    public boolean pvp_enabled = false;
 
     public GameInstance(Map m) {
         this.m = m;
@@ -80,6 +90,7 @@ public class GameInstance {
         this.lastFlight = new HashMap<String, Boolean>();
         this.lastAllowFlight = new HashMap<String, Boolean>();
         this.buffs = new ArrayList<EffectBuffer>();
+        this.lastHints = new HashMap<String, String>();
         this.state = GameState.COLLECTING;
     }
 
@@ -106,20 +117,25 @@ public class GameInstance {
                     if (seconds > 20 || (seconds >= 11 && seconds <= 15) || (seconds >= 6 && seconds <= 7) || (seconds >= 1 && seconds <= 3))
                         for (Player p : players)
                             TitleManager.sendActionBar(p, "Starting in: " + seconds);
-                    if (seconds == 20 || seconds == 10 || seconds <= 5) {
-                        if (seconds <= 20 && seconds >= 16)
-                            for (Player p : players)
-                                TitleManager.sendActionBar(p, "Lets see how this one goes" + repeat("!", (seconds - 20) * -1));
-                        if (seconds <= 10 && seconds >= 8)
-                            for (Player p : players)
-                                TitleManager.sendActionBar(p, "Ready?" + repeat("?", (seconds - 8) * -1));
-                        if (seconds <= 5 && seconds >= 4)
-                            for (Player p : players)
-                                TitleManager.sendActionBar(p, "Set!");
-                        if (seconds == 0)
-                            for (Player p : players)
-                                TitleManager.sendActionBar(p, "GO!!!");
+                    if (seconds <= 20 && seconds >= 16)
+                        for (Player p : players)
+                        {
+                            if (!lastHints.containsKey(p.getUniqueId().toString()))
+                                lastHints.put(p.getUniqueId().toString(), Unseeable.instance.getConfig().getList("hints").get(new Random().nextInt(Unseeable.instance.getConfig().getList("hints").size()));
 
+                            TitleManager.sendActionBar(p, lastHints.get(p.getUniqueId().toString()) + repeat("!", (seconds - 20) * -1));
+                        }
+                    if (seconds <= 10 && seconds >= 8)
+                        for (Player p : players)
+                            TitleManager.sendActionBar(p, "Ready?" + repeat("?", (seconds - 8) * -1));
+                    if (seconds <= 5 && seconds >= 4)
+                        for (Player p : players)
+                            TitleManager.sendActionBar(p, "Set!");
+                    if (seconds == 0)
+                        for (Player p : players)
+                            TitleManager.sendActionBar(p, "GO!!!");
+
+                    if (seconds == 20 || seconds == 10 || seconds <= 5) {
                         if (seconds > 5)
                             massSend(LanguageManager.get("lang.startin", new String[]{"" + seconds}));
                         else if (seconds == 0)
@@ -175,6 +191,9 @@ public class GameInstance {
                     }
                 }
 
+                if (pvp_enabled)
+                    visState = 1;
+
                 if (visState == 1) {
                     // hide player
                     //p.removePotionEffect(PotionEffectType.INVISIBILITY);
@@ -182,7 +201,7 @@ public class GameInstance {
                     for (Player _p : players)
                         if (p != _p)
                             HiderUtil.showPlayer(_p, p);
-                    TitleManager.sendActionBar(p, "&c&l----VISIBLE----");
+                    TitleManager.sendActionBar(p, LanguageManager.get("lang.showaction", new String[]{})/*"&c&l----VISIBLE----"*/);
                 }
                 else
                 {
@@ -191,7 +210,7 @@ public class GameInstance {
                     for (Player _p : players)
                         if (p != _p)
                             HiderUtil.hidePlayer(_p, p);
-                    TitleManager.sendActionBar(p, "&a&l)()()(HIDDEN)()()(");
+                    TitleManager.sendActionBar(p, LanguageManager.get("lang.hideaction", new String[]{})/*"&a&l)()()(HIDDEN)()()("*/);
                 }
             }
             // Apply Effects to Spectators
@@ -206,6 +225,18 @@ public class GameInstance {
             // Sort the list
             java.util.Map<String, Integer> r = MapUtil.sortByComparator((HashMap<String, Integer>) kills.clone(), false);
 
+            // Check if timer has started
+            Integer base = (pvp_enabled ? ConfigSettings.millToFight : ConfigSettings.millToSwitch);
+            if (Unseeable.instance.isTimed()) {
+                if (pvp_timer == null)
+                    pvp_timer = Stopwatch.createStarted();
+                if (base - pvp_timer.elapsed(TimeUnit.MILLISECONDS) <= 0) {
+                    pvp_timer = Stopwatch.createStarted();
+                    pvp_enabled = !pvp_enabled;
+                    base = (pvp_enabled ? ConfigSettings.millToFight : ConfigSettings.millToSwitch);
+                }
+            }
+
             // Send players scoreboards
             for (Player p : players) {
                 if (scoreboards.containsKey(p.getUniqueId().toString())) {
@@ -219,7 +250,7 @@ public class GameInstance {
                         if (place > 3)
                             break;
                         OfflinePlayer ofp = Bukkit.getOfflinePlayer(UUID.fromString(str));
-                        lscore.content.add(Unseeable.parse(/*" &c" + place + "&6. &r" + ofp.getName() + " &5: &6" + r.get(str)*/ " &r" + r.get(str) + " " + (place == 1 ? "&6" : place == 2 ? "&a" : "&b") + ofp.getName()));
+                        lscore.content.add(LanguageManager.get("lang.scoreboard_entry", new String[]{ ofp.getName(), kills.get(str) + "" }));
                         place++;
                     }
                     Integer userplace = 0;
@@ -232,9 +263,18 @@ public class GameInstance {
                         lscore.spacer();
                         lscore.content.add(Unseeable.parse(" &c" + userplace + "&6. &rYou &5: &6" + r.get(p.getUniqueId().toString())));
                     }
+
+                    if (Unseeable.instance.isTimed()) {
+                        lscore.spacer();
+                        long millDif = base - pvp_timer.elapsed(TimeUnit.MILLISECONDS);
+                        long secDif = (int) Math.floor(millDif / 1000);
+                        lscore.content.add(LanguageManager.get("lang." + (pvp_enabled ? "pvpenabled" : "pvpdisabled"), new String[]{}));
+                        lscore.content.add(LanguageManager.get("lang.pvptime", new String[]{ "" + (secDif <= 5 ? "&c&l" : "&a") + (secDif <= 5 ? (millDif/1000.0 + "s") : (secDif + "s")) }));
+                    }
                     lscore.update();
                 }
             }
+
             for (Player p : spectators) {
                 if (scoreboards.containsKey(p.getUniqueId().toString())) {
                     LScoreboard lscore = scoreboards.get(p.getUniqueId().toString());

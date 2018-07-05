@@ -22,8 +22,8 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.yaml:snakeyaml:1.19" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.md-5:bungeecord-chat:1.12-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: nl.lucemans:NovaItems:1.5-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: nl.lucemans:NovaInventory:2.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: nl.lucemans:NovaItems:1.7-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: nl.lucemans:NovaInventory:2.3-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.sk89q.worldedit:worldedit-bukkit:6.1.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.milkbowl.vault:VaultAPI:1.6" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.6" level="project" />

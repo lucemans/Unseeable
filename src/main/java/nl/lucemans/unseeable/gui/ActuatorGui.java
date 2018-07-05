@@ -1,5 +1,6 @@
 package nl.lucemans.unseeable.gui;
 
+import nl.lucemans.NovaItems.NBlockColor;
 import nl.lucemans.NovaItems.NItem;
 import nl.lucemans.ninventory.NInventory;
 import nl.lucemans.unseeable.Unseeable;
@@ -30,6 +31,14 @@ public class ActuatorGui {
                 PotionMeta meta = (PotionMeta) item.make().getItemMeta();
                 meta.setColor(PotionEffectType.getByName(ab.effect.toUpperCase()).getColor());
                 item.setName("&7[" + ab.target.toUpperCase() + "] &b" + word(ab.effect.replaceAll("_", " ")) + " " + getNumeric(ab.strength)).setDescription("&eDuration: &7" + formatTime(ab.duration), "", "&rShift Right Click to &c&lDELETE&r.");
+            }
+            if (ab.mode.equalsIgnoreCase("invisible")) {
+                item.type = Material.GLASS;
+                item.setName("&7[" + ab.target.toUpperCase() + "] &bVisible " + getNumeric(ab.priority)).setDescription("&eDuration: &7" + formatTime(ab.duration), "", "&rShift Right Click to &c&lDELETE&r.");
+            }
+            if (ab.mode.equalsIgnoreCase("visible")) {
+                item.type = Material.STAINED_GLASS;
+                item.setName("&7[" + ab.target.toUpperCase() + "] &bInvisible " + getNumeric(ab.priority)).setDescription("&eDuration: &7" + formatTime(ab.duration), "", "&rShift Right Click to &c&lDELETE&r.");
             }
 
             ninv.setItem(item.make(), i);
@@ -98,6 +107,7 @@ public class ActuatorGui {
         if (mode.equalsIgnoreCase("effect")) {
             Integer count = 0;
             count += PotionEffectType.values().length;
+            count += 2; // Invis & Vis
             //count += 1; // custom enchants
             NInventory ninv = new NInventory(template.name + " > Actuator > Effect", (int) Math.ceil(count / 9.0) * 9, Unseeable.instance);
             Integer i = 0;
@@ -126,6 +136,60 @@ public class ActuatorGui {
                 });
                 i++;
             }
+            // Invis & Vis
+            ninv.setItem(NItem.create(Material.STAINED_GLASS).setColor(NBlockColor.CLEAR).setName("Visibility").make(), i);
+            ninv.setLClick(i, new Runnable() {
+                @Override
+                public void run() {
+                    action.mode = "visible";
+                    editActuator(p, template, action, "priority");
+                }
+            });
+            i++;
+            ninv.setItem(NItem.create(Material.GLASS).setName("Invisibility").make(), i);
+            ninv.setLClick(i, new Runnable() {
+                @Override
+                public void run() {
+                    action.mode = "invisible";
+                    editActuator(p, template, action, "priority");
+                }
+            });
+
+            p.openInventory(ninv.getInv());
+        }
+        if (mode.equalsIgnoreCase("priority")) {
+            NInventory ninv = new NInventory(template.name + " > Actuator > Priority: " + getNumeric(action.strength), 9, Unseeable.instance);
+
+            if (action.priority > 1)
+            {
+                ninv.setItem(NItem.create(Material.STAINED_GLASS_PANE).setName("&c&lDecrease &r&bPriority &rby 1").setDescription("&r", "&7Decrease the priority of this actuator by 1.", "", "&rClick to &c&lDECREASE&r.").setDurability((short) 14).make(), 1);
+                ninv.setLClick(1, new Runnable() {
+                    @Override
+                    public void run() {
+                        action.priority -= 1;
+                        editActuator(p, template, action, "priority");
+                    }
+                });
+            }
+
+            ninv.setItem(NItem.create(Material.STAINED_GLASS_PANE).setName("&a&lIncrease &r&bPriority &rby 1").setDescription("&r", "&7Increase the priority of this actuator by 1.", "", "&rClick to &a&lINCREASE&r.").setDurability((short) 5).make(), 7);
+            ninv.setLClick(7, new Runnable() {
+                @Override
+                public void run() {
+                    action.priority += 1;
+                    editActuator(p, template, action, "priority");
+                }
+            });
+
+            ninv.setItem(NItem.create(Material.YELLOW_FLOWER).setName("&b&lPriority: " + getNumeric(action.priority)).setDescription("&r","&7This is the priority of the effect specified.", "", "&rClick to &a&lCONFIRM&r.")
+                    .setAmount(action.strength).make(), 4);
+            ninv.setLClick(4, new Runnable() {
+                @Override
+                public void run() {
+                    editActuator(p, template, action, "duration");
+                }
+            });
+
             p.openInventory(ninv.getInv());
         }
         if (mode.equalsIgnoreCase("strength")) {

@@ -50,12 +50,22 @@ lang:
   killsubtitle: "KILLSUBTITLE"
   deathtitle: "DEATH"
   deathsubtitle: "DEATHSUBTITLE"
+  pvpenabled: "&c&l--PVP ENABLED&c&l--"
+  pvpdisabled: "&a&l--PVP DISABLED&a&l--"
+  pvptime: "&7Changes in &r$1 &7sec"
+  hideaction: "&7&m---&r &7&lUnseeable &7&m---"
+  showaction: "&c&m---&r &4&lVisible &c&m---"
   chooseamap: "Choose a map ($1)"
   mapicon: "WOOL"
   maptitle: "&a&l$1"
   noint: "%prefix '$1' is not a valid Number"
   propertyupdate: "%prefix '$1' updated to '$2' for '$3'."
   sign: "&r[&b&lUn&6&lseeable&r]"
+  timed_mode_title: "&c&lTIMED MODE"
+  timed_mode_subtitle: "&7Enabled by $1"
+  scoreboard_entry: " &6$1 &r$2"
+  timed_mode_toggle_on: "&c&lEVERYBODY VISIBLE"
+  timed_mode_toggle_off: ""
 allowed_commands:
   - usa
   - us
@@ -63,3 +73,14 @@ allowed_commands:
   - reply
   - r
   - tell
+hints:
+  - "Hint: Try not to die"
+  - "Hint: If you hold your sword you become visible"
+  - "Hint: Your statusbar shows your visibility"
+  - "Hint: Powerups can help"
+  - "Hint: The Rocket Powerup, shoots you to the moon and back"
+  - "Hint: Be warned for when timed mode is on!"
+  - "Charging Dead Lazer.."
+  - "Gifs are life."
+  - "Hint: Make sure you keep movin'"
+  - "Be aware of the pikachu!"
